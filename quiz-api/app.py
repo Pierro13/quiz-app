@@ -2,7 +2,7 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS
 
 app = Flask(__name__)
-CORS(app)
+CORS(app, resources={r"/*": {"origins": "*"}})
 
 @app.route('/')
 def hello_world():
@@ -11,10 +11,12 @@ def hello_world():
 
 @app.route('/quiz-info', methods=['GET'])
 def GetQuizInfo():
-    return {"size": 0, "scores": []}, 200
-
-
-#b'\xd8\x17\x06PG\x92\x93\xc1.\x02\x01\xe5\xfd\xf4_@'
+    sample_scores = [
+        {"name": "John", "score": 100, "date": "2021-01-01"},
+        {"name": "Jane", "score": 90, "date": "2021-01-02"},
+        {"name": "Jim", "score": 80, "date": "2021-01-03"}
+    ]
+    return jsonify({"size": len(sample_scores), "scores": sample_scores}), 200
 
 @app.route('/login', methods=['POST'])
 def login():
