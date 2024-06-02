@@ -35,6 +35,18 @@ def build_token():
     except Exception as e:
         return e
 
+def verify_token(token):
+    print("Verifying token")
+    try:
+        jwt.decode(token, secret, algorithms=['HS256'])
+        print("Token is valid")
+        return True
+    except jwt.ExpiredSignatureError:
+        print("Token expired")
+        return False
+    except jwt.InvalidTokenError:
+        print("Invalid token")
+        return False
 
 def decode_token(auth_token):
     """
