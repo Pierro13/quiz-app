@@ -2,6 +2,7 @@ import { createRouter, createWebHistory } from 'vue-router'
 import HomePage from '../views/HomePage.vue'
 import NewQuizPage from '../views/NewQuizPage.vue'
 import ScoresView from '@/views/ScoresView.vue';
+import QuestionsManger from '@/views/QuestionsManager.vue';
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -20,13 +21,12 @@ const router = createRouter({
       path: '/scores',
       name: 'scores',
       component: ScoresView,
+    },
+    {
+      path: '/questions',
+      name: 'questions',
+      component: QuestionsManger,
     }
-    // Vous pouvez commenter ou supprimer la route 'about' si elle n'est plus nécessaire
-    // {
-    //   path: '/about',
-    //   name: 'about',
-    //   component: () => import('../views/AboutView.vue')
-    // }
   ]
 });
 

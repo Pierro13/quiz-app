@@ -28,7 +28,9 @@ export default {
     }
   },
   getQuizInfo() {
-    return this.call("get", "quiz-info");
+    return this.call("get", "scores").then((data)=>{
+      return data;
+    });
   },
   getQuizQuestions() {
     return this.call("get", "quiz-questions");

@@ -3,8 +3,8 @@ from flask_cors import CORS
 import sqlite3
 from database import *
 import jwt_utils
-from models import Question
-from database import add_question, get_db_connection
+from models import Question, Answer
+from database import add_question, get_db_connection, get_question_by_position
 
 app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "*"}})
@@ -18,14 +18,16 @@ def hello_world():
 
 @app.route('/quiz-info', methods=['GET'])
 def GetQuizInfo():
-    # sample_scores = [
-    #     {"name": "Jopel", "score": 1000000, "date": "2024-06-03"},
-    #     {"name": "John", "score": 100, "date": "2021-01-01"},
-    #     {"name": "Jane", "score": 90, "date": "2021-01-02"},
-    #     {"name": "Jim", "score": 80, "date": "2021-01-03"}
-    # ]
-    # return jsonify({"size": len(sample_scores), "scores": sample_scores}), 200
-    data = get_all_users()
+    try:
+        total_questions = get_total_number_of_questions()
+        return jsonify({"total": total_questions}), 200
+    except Exception as e:
+        print(f"Error in /quiz-info: {e}")
+        return jsonify({"error": "An unexpected error occurred."}), 500
+
+@app.route('/scores', methods=['GET'])
+def GetScores():
+    data = [user.to_dict() for user in get_all_users()]
     return jsonify(data), 200
 
 @app.route('/login', methods=['POST'])
@@ -39,7 +41,6 @@ def login():
         return {"token": token}, 200
     else:
         return 'Unauthorized', 401
-
 
 @app.route('/questions', methods=['POST'])
 def create_question():
@@ -56,6 +57,7 @@ def create_question():
     except sqlite3.IntegrityError as e:
         return jsonify({"error": str(e)}), 400
     except Exception as e:
+        print(f"Error in /questions POST: {e}")
         return jsonify({"error": "An unexpected error occurred."}), 500
 
 @app.route('/rebuild-db', methods=['POST'])
@@ -82,10 +84,11 @@ def get_question(question_id):
     try:
         question = get_question_by_id(question_id)
         if question:
-            return jsonify(question), 200
+            return jsonify(question.to_dict()), 200
         else:
             return jsonify({"error": "Not Found"}), 404
     except Exception as e:
+        print(f"Error in /questions/<int:question_id>: {e}")
         return jsonify({"error": "An unexpected error occurred."}), 500
 
 @app.route('/questions/<int:question_id>', methods=['DELETE'])
@@ -94,18 +97,21 @@ def delete_question(question_id):
         delete_question_by_id(question_id)
         return '', 204
     except Exception as e:
+        print(f"Error in /questions/<int:question_id> DELETE: {e}")
         return jsonify({"error": "An unexpected error occurred."}), 500
 
 @app.route('/questions', methods=['GET'])
 def get_question_by_position_route():
     position = request.args.get('position')
+    print(f"Requested position: {position}")  # Ajoutez cette ligne pour déboguer
     try:
         question = get_question_by_position(position)
         if question:
-            return jsonify(question), 200
+            return jsonify(question.to_dict()), 200  # Ajoutez .to_dict() pour renvoyer un dictionnaire
         else:
             return jsonify({"error": "Not Found"}), 404
     except Exception as e:
+        print(f"Error in /questions: {e}")
         return jsonify({"error": "An unexpected error occurred."}), 500
 
 @app.route('/questions/<int:question_id>', methods=['PUT'])
@@ -121,6 +127,18 @@ def update_question_route(question_id):
         update_question(question_id, question)
         return '', 204
     except Exception as e:
+        print(f"Error in /questions/<int:question_id> PUT: {e}")
+        return jsonify({"error": "An unexpected error occurred."}), 500
+
+@app.route('/quiz/end', methods=['POST'])
+def end_quiz():
+    try:
+        data = request.get_json()
+        score = data.get('score', 0)
+        # Logic to handle end of the quiz, e.g., save score
+        return jsonify({"message": "Quiz ended successfully", "score": score}), 200
+    except Exception as e:
+        print(f"Error in /quiz/end: {e}")
         return jsonify({"error": "An unexpected error occurred."}), 500
 
 if __name__ == '__main__':

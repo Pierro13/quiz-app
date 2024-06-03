@@ -8,8 +8,8 @@ onMounted(async () => {
     console.log("Home page mounted");
     try {
         const response = await quizApiService.getQuizInfo();
-        console.log("Scores récupérés : ", response.scores); // Log the scores
-        registeredScores.value = response.scores; // Assign the scores array
+        console.log("Scores récupérés : ", response); // Log the scores
+        registeredScores.value = response;
     } catch (error) {
         console.error("Erreur lors de la récupération des scores : ", error);
     }
@@ -17,11 +17,6 @@ onMounted(async () => {
 </script>
 
 <template>
-  <!-- <h1>Home page</h1>
-  <div v-for="scoreEntry in registeredScores" v-bind:key="scoreEntry.date">
-    <p>{{ scoreEntry.date }} - {{ scoreEntry.score }}</p>
-  </div>
-  <router-link to="/new-quiz">Démarrer le quiz !</router-link> -->
   <div class="container">
     <div class="left-part">
       <h1>Testez et améliorez vos compétences <a href="/new-quiz" class="green-underline-text">en jouant</a></h1>

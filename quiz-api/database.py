@@ -1,5 +1,5 @@
 import sqlite3
-from models import Question
+from models import Question, Answer, User
 
 def get_db_connection():
     connexion = sqlite3.connect('quiz.db')
@@ -46,16 +46,26 @@ def get_question_by_position(position):
     cursor = conn.cursor()
     cursor.execute('SELECT * FROM Questions WHERE position = ?', (position,))
     row = cursor.fetchone()
-    conn.close()
     if row:
-        return Question.from_row(row)
-    else:
-        return None
+        question = Question.from_row(row)
+        question.answers = get_answers_by_question_id(question.id)
+        conn.close()
+        return question
+    conn.close()
+    return None
     
-def update_question(question):
+def get_total_number_of_questions():
     conn = get_db_connection()
     cursor = conn.cursor()
-    cursor.execute('UPDATE Questions SET titre = ?, texte = ?, image = ?, position = ? WHERE id = ?', (question.title, question.text, question.image, question.position, question.id))
+    cursor.execute('SELECT COUNT(*) FROM Questions')
+    total = cursor.fetchone()[0]
+    conn.close()
+    return total
+
+def update_question(question_id, question):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute('UPDATE Questions SET titre = ?, texte = ?, image = ?, position = ? WHERE id = ?', (question.title, question.text, question.image, question.position, question_id))
     conn.commit()
     conn.close()
 
@@ -66,8 +76,24 @@ def delete_question_by_id(question_id):
     conn.commit()
     conn.close()
 
+def add_answer(answer):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute('''
+        INSERT INTO Answers (question_id, texte, is_correct)
+        VALUES (?, ?, ?)
+    ''', (answer.question_id, answer.text, answer.is_correct))
+    conn.commit()
+    conn.close()
 
-##################################### USERS #####################################
+def get_answers_by_question_id(question_id):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute('SELECT * FROM Answers WHERE question_id = ?', (question_id,))
+    rows = cursor.fetchall()
+    conn.close()
+    return [Answer.from_row(row) for row in rows]
+
 import json
 from models import User
 
@@ -77,4 +103,4 @@ def get_all_users():
     cursor.execute('SELECT * FROM Users')
     rows = cursor.fetchall()
     conn.close()
-    return [User(id=row['id'], username=row['username'], date=row['date']) for row in rows]
+    return [User(id=row['id'], username=row['username'], date=row['date'], score=row['score']) for row in rows]

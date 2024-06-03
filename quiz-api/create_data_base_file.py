@@ -17,5 +17,6 @@ def create_table():
     connection.commit()
     connection.close()
 
+
 if __name__ == "__main__":
     create_table()
