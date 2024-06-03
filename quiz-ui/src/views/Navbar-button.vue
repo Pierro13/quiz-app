@@ -1,11 +1,15 @@
 <template>
   <router-link :to="link">
     <button :style="{
-      backgroundColor: backgroundColor,
+      backgroundColor: hover ? backgroundColorHover : backgroundColor,
       color: textColor,
-      border: hasBorder ? '1px solid black' : 'none',
+      // border : if hover is true and has border is true, then border none else border 1px solid black. If hover is false, then border 1px solid black
+      border: hasBorder ? (hover ? 'none' : '1px solid black') : (hover ? '1px solid black' : 'none'),
     }"
-    class="navbar-button">
+    class="navbar-button"
+    @mouseover="hover = true"
+    @mouseout="hover = false"
+    >
       {{ text }}
     </button>
   </router-link>
@@ -14,10 +18,19 @@
 <script>
 export default{
   name: 'NavbarButton',
+  data(){
+    return {
+      hover: false,
+    };
+  },
   props: {
     backgroundColor: {
       type: String,
       required: true,
+    },
+    backgroundColorHover: {
+      type: String,
+      default: 'white',
     },
     text: {
       type: String,
@@ -40,4 +53,11 @@ export default{
 </script>
 
 <style scoped>
+button{
+  width: 15vw;
+  height: 8vh;
+  font-weight: bold;
+  font-size: 1.2em;
+  cursor: pointer;
+}
 </style>

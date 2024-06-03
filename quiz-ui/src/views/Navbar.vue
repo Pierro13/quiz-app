@@ -2,11 +2,28 @@
 <template>
   <div class="container">
     <div class="left-part">
-      <img src="@/assets/logo-code-master1.svg" alt="Logo" class="logo" width="55%" height="100%"/>
+      <router-link to="/">
+        <img src="@/assets/logo-code-master1.svg" alt="Logo" class="logo" width="55%" height="100%"/>
+      </router-link>
     </div>
     <div class="right-part">
-      <NavbarButton backgroundColor="white" text="Accueil" link="/" hasBorder="true" textColor="black"/>
-      <NavbarButton backgroundColor="#ACECA1" text="Administrateur" link="/new-quiz" hasBorder="false" textColor="black"/>
+      <NavbarButton 
+        backgroundColor="white" 
+        backgroundColorHover="#ACECA1"
+        text="Accueil" 
+        link="/" 
+        :hasBorder="true" 
+        textColor="black" 
+        class="welcome-button"
+      />
+      <NavbarButton 
+        backgroundColor="#ACECA1" 
+        text="Administrateur" 
+        link="/" 
+        :hasBorder="false" 
+        textColor="black" 
+        class="admin-button"
+        />
     </div>
   </div>
 </template>
@@ -26,10 +43,19 @@ export default {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    border: 1px solid black;
   }
 
-  .logo{
-    
+  .left-part{
+    margin-top: 1vh;
+    margin-left: 1vw;
   }
+
+  .right-part{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 35%;
+    margin-right: 3vw;
+  }
+
 </style>

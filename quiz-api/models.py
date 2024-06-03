@@ -40,3 +40,21 @@ class Question:
             image=data['image'],
             position=data['position']
         )
+    
+class User:
+    def __init__(self, id, username, date):
+        self.id = id
+        self.username = username
+        self.date = date
+    
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'username': self.username,
+            'date': self.date
+        }
+    
+    def to_json(self):
+        return json.dumps(self.to_dict())
+
+

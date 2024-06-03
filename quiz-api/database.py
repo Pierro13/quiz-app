@@ -65,3 +65,16 @@ def delete_question_by_id(question_id):
     cursor.execute('DELETE FROM Questions WHERE id = ?', (question_id,))
     conn.commit()
     conn.close()
+
+
+##################################### USERS #####################################
+import json
+from models import User
+
+def get_all_users():
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute('SELECT * FROM Users')
+    rows = cursor.fetchall()
+    conn.close()
+    return [User(id=row['id'], username=row['username'], date=row['date']) for row in rows]

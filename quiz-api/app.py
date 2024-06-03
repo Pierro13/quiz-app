@@ -1,7 +1,7 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 import sqlite3
-from database import add_question, delete_all_questions, get_question_by_id, get_question_by_position, update_question, delete_question_by_id
+from database import *
 import jwt_utils
 from models import Question
 from database import add_question, get_db_connection
@@ -18,12 +18,15 @@ def hello_world():
 
 @app.route('/quiz-info', methods=['GET'])
 def GetQuizInfo():
-    sample_scores = [
-        {"name": "John", "score": 100, "date": "2021-01-01"},
-        {"name": "Jane", "score": 90, "date": "2021-01-02"},
-        {"name": "Jim", "score": 80, "date": "2021-01-03"}
-    ]
-    return jsonify({"size": len(sample_scores), "scores": sample_scores}), 200
+    # sample_scores = [
+    #     {"name": "Jopel", "score": 1000000, "date": "2024-06-03"},
+    #     {"name": "John", "score": 100, "date": "2021-01-01"},
+    #     {"name": "Jane", "score": 90, "date": "2021-01-02"},
+    #     {"name": "Jim", "score": 80, "date": "2021-01-03"}
+    # ]
+    # return jsonify({"size": len(sample_scores), "scores": sample_scores}), 200
+    data = get_all_users()
+    return jsonify(data), 200
 
 @app.route('/login', methods=['POST'])
 def login():
