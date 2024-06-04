@@ -23,6 +23,14 @@ def add_question(question):
     connection.close()
     return question_id
 
+def get_all_questions():
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute('SELECT * FROM Questions')
+    rows = cursor.fetchall()
+    conn.close()
+    return [Question.from_row(row) for row in rows]
+
 def get_question_by_id(question_id):
     conn = get_db_connection()
     cursor = conn.cursor()
@@ -69,12 +77,25 @@ def update_question(question_id, question):
     conn.commit()
     conn.close()
 
+def update_question_positions():
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute('SELECT id FROM Questions ORDER BY position')
+    rows = cursor.fetchall()
+    position = 1
+    for row in rows:
+        cursor.execute('UPDATE Questions SET position = ? WHERE id = ?', (position, row['id']))
+        position += 1
+    conn.commit()
+    conn.close()
+
 def delete_question_by_id(question_id):
     conn = get_db_connection()
     cursor = conn.cursor()
     cursor.execute('DELETE FROM Questions WHERE id = ?', (question_id,))
     conn.commit()
     conn.close()
+    update_question_positions()
 
 def add_answer(answer):
     conn = get_db_connection()
@@ -94,6 +115,18 @@ def get_answers_by_question_id(question_id):
     conn.close()
     return [Answer.from_row(row) for row in rows]
 
+def get_answer_by_id(answer_id):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute('SELECT * FROM Answers WHERE id = ?', (answer_id,))
+    row = cursor.fetchone()
+    conn.close()
+    if row:
+        return Answer.from_row(row)
+    else:
+        return None
+
+
 import json
 from models import User
 
@@ -104,3 +137,14 @@ def get_all_users():
     rows = cursor.fetchall()
     conn.close()
     return [User(id=row['id'], username=row['username'], date=row['date'], score=row['score']) for row in rows]
+
+def add_user(username, date, score):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute('''
+                    INSERT INTO Users (username, date, score)
+                   VALUES (?, ?, ?)         
+                   ''', (username, date, score))
+    conn.commit()
+    conn.close()
+

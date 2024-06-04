@@ -1,8 +1,7 @@
 <template>
-    <h3>Question {{ currentQuestion.id }}</h3>
     <div class="container">
       <div class="left-part">
-        <h3>Score : 78</h3>
+        <h3>Score : {{ score }}</h3>
       </div>
       <div class="middle-part">
         <div class="question-container">
@@ -30,7 +29,8 @@
   
   const props = defineProps({
     currentQuestion: Object,
-    isLastQuestion: Boolean
+    isLastQuestion: Boolean,
+    score: Number,
   });
   const emit = defineEmits(['click-on-answer', 'next-question']);
   

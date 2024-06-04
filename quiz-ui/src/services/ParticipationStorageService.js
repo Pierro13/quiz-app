@@ -1,17 +1,27 @@
 export default {
     clear() {
-        window.localStorage.clear();
+      window.localStorage.clear();
     },
     savePlayerName(playerName) {
-        window.localStorage.setItem("playerName", playerName);
+      window.localStorage.setItem("playerName", playerName);
     },
-    getPlayerName() {		
-        window.localStorage.getItem("playerName");
+    getPlayerName() {
+      return window.localStorage.getItem("playerName");
     },
     saveParticipationScore(participationScore) {
-        window.localStorage.setItem("participationScore", participationScore);
+      window.localStorage.setItem("participationScore", participationScore);
     },
     getParticipationScore() {
-        window.localStorage.getItem("participationScore");
+      return window.localStorage.getItem("participationScore");
+    },
+    saveAuthToken(token) {
+      window.localStorage.setItem("authToken", token);
+    },
+    getAuthToken() {
+      return window.localStorage.getItem("authToken");
+    },
+    clearAuthToken() {
+      window.localStorage.removeItem("authToken");
     }
   };
+  

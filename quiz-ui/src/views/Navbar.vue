@@ -30,7 +30,7 @@
       <NavbarButton 
         backgroundColor="#ACECA1" 
         text="Administrateur" 
-        link="/" 
+        link="/admin" 
         :hasBorder="false" 
         textColor="black" 
         class="admin-button"

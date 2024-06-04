@@ -16,8 +16,13 @@
   const router = useRouter();
 
   function launchNewQuiz() {
-    ParticipationStorageService.savePlayerName(username.value);
-    console.log("Launch new quiz with", username.value);
-    router.push('/questions');
+    if(username.value){
+      ParticipationStorageService.savePlayerName(username.value);
+      router.push('/questions');
+      console.log("Launch new quiz with", username.value);
+    }
+    else{
+      alert("Please enter your name.");
+    }    
   }
 </script>
