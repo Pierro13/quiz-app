@@ -16,6 +16,17 @@
         textColor="black" 
         class="welcome-button"
       />
+
+      <NavbarButton
+        backgroundColor = "white"
+        backgroundColorHover = "#ACECA1"
+        text="Scores"
+        link="/scores"
+        :hasBorder="true"
+        textColor="black"
+        class="scores-button"        
+      />
+
       <NavbarButton 
         backgroundColor="#ACECA1" 
         text="Administrateur" 
@@ -54,7 +65,7 @@ export default {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    width: 35%;
+    width: 50%;
     margin-right: 3vw;
   }
 

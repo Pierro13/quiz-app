@@ -25,7 +25,6 @@ onMounted(async () => {
     <div class="right-part">
       <img class="homepage" src="@/assets/logo-code-master1.svg" alt="Logo" width="55%" height="100%"/>
       <a class="play-button" href="/new-quiz">Jouer</a>
-      <a class="play-button" href="/scores">Voir les scores</a>
     </div>
   </div>
 </template>
