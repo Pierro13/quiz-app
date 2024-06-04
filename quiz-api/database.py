@@ -7,21 +7,23 @@ def get_db_connection():
     return connexion
 
 def add_question(question):
-    connection = sqlite3.connect('quiz.db')
-    cursor = connection.cursor()
+    conn = get_db_connection()
+    cursor = conn.cursor()
 
     cursor.execute('SELECT * FROM Questions WHERE position = ?', (question.position,))
     existing_question = cursor.fetchone()
 
     if existing_question:
-        connection.close()
+        conn.close()
         raise sqlite3.IntegrityError("Question with this position already exists.")
 
-    cursor.execute('INSERT INTO Questions (titre, texte, image, position) VALUES (?, ?, ?, ?)', (question.title, question.text, question.image, question.position))
-    connection.commit()
+    cursor.execute('INSERT INTO Questions (titre, texte, image, position, code) VALUES (?, ?, ?, ?, ?)', 
+                   (question.title, question.text, question.image, question.position, question.code))
+    conn.commit()
     question_id = cursor.lastrowid
-    connection.close()
+    conn.close()
     return question_id
+
 
 def get_all_questions():
     conn = get_db_connection()

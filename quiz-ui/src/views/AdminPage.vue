@@ -9,7 +9,7 @@
     <div v-else>
       <h2>Welcome to the Admin Panel</h2>
       <AddQuestion @question-added="fetchQuestions"/>
-      <QuestionsList :questions="questions"/>
+      <QuestionsList :questions="questions" @question-deleted="fetchQuestions"/>
     </div>
   </div>
 </template>
@@ -27,6 +27,7 @@ const questions = ref([]);
 const fetchQuestions = async () => {
   try {
     const response = await axios.get('http://127.0.0.1:5000/questions/all');
+    console.log(response.data);  // Ajoutez ce log
     questions.value = response.data;
   } catch (error) {
     console.error('Failed to fetch questions:', error);

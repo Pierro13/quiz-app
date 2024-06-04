@@ -3,7 +3,15 @@
     <h2>Questions List</h2>
     <ul>
       <li v-for="question in questions" :key="question.id">
-        {{ question.title }}
+        <div>
+          <h3>{{ question.title }}</h3>
+          <p>{{ question.text }}</p>
+          <ul>
+            <li v-for="answer in question.answers" :key="answer.id">
+              {{ answer.text }} ({{ answer.is_correct ? 'Correct' : 'Incorrect' }})
+            </li>
+          </ul>
+        </div>
         <button @click="editQuestion(question.id)">Edit</button>
         <button @click="deleteQuestion(question.id)">Delete</button>
       </li>
@@ -12,13 +20,13 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import axios from 'axios';
 
 const props = defineProps({
   questions: Array
 });
+const emit = defineEmits(['question-deleted']);
 
 const router = useRouter();
 

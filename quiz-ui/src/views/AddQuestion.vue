@@ -23,6 +23,13 @@
         <input type="number" id="position" v-model="newQuestion.position" required @input="validatePosition">
         <p v-if="positionError" class="error">{{ positionError }}</p>
       </div>
+      <div>
+        <h3>Answers:</h3>
+        <div v-for="(answer, index) in newQuestion.answers" :key="index">
+          <input type="text" v-model="answer.text" placeholder="Answer text" required>
+          <input type="checkbox" v-model="answer.is_correct"> Correct
+        </div>
+      </div>
       <button type="submit" :disabled="!!positionError">Add Question</button>
     </form>
   </div>
@@ -37,7 +44,13 @@ const newQuestion = ref({
   text: '',
   code: '',
   image: '',
-  position: null
+  position: null,
+  answers: [
+    { text: '', is_correct: false },
+    { text: '', is_correct: false },
+    { text: '', is_correct: false },
+    { text: '', is_correct: false }
+  ]
 });
 
 const positionError = ref('');
@@ -62,7 +75,13 @@ const submitForm = async () => {
         text: '',
         code: '',
         image: '',
-        position: null
+        position: null,
+        answers: [
+          { text: '', is_correct: false },
+          { text: '', is_correct: false },
+          { text: '', is_correct: false },
+          { text: '', is_correct: false }
+        ]
       };
       positionError.value = '';
     }

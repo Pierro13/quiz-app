@@ -15,15 +15,15 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue';
+import axios from 'axios';
 import QuestionDisplay from './QuestionDisplay.vue';
 import ParticipationStorageService from '@/services/ParticipationStorageService';
-import axios from 'axios';
 
 const currentQuestion = ref(null);
 const currentQuestionPosition = ref(1);
 const totalNumberOfQuestions = ref(0);
 const score = ref(0);
-const playerName = ref(ParticipationStorageService.getPlayerName() || 'Anonymous')
+const playerName = ref(ParticipationStorageService.getPlayerName() || 'Anonymous');
 
 const isLastQuestion = computed(() => {
   return currentQuestionPosition.value === totalNumberOfQuestions.value;
@@ -32,15 +32,10 @@ const isLastQuestion = computed(() => {
 const loadQuestionByPosition = async (position) => {
   try {
     const response = await axios.get(`http://127.0.0.1:5000/questions?position=${position}`);
+    console.log('Loaded question:', response.data);
     currentQuestion.value = response.data;
   } catch (error) {
-    if (error.response && error.response.status === 404) {
-      console.error('Question not found at position:', position);
-      // Handle the case where the question does not exist
-      currentQuestion.value = null;
-    } else {
-      console.error('Failed to load question:', error);
-    }
+    console.error('Failed to load question:', error);
   }
 };
 
@@ -56,14 +51,8 @@ const loadNextQuestion = async () => {
 const answerClickedHandler = async (index) => {
   const answerId = currentQuestion.value.answers[index].id;
   try {
-    const response = await fetch('http://127.0.0.1:5000/submit-answer', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({ answer_id: answerId })
-    });
-    const result = await response.json();
+    const response = await axios.post('http://127.0.0.1:5000/submit-answer', { answer_id: answerId });
+    const result = response.data;
     if (result.correct) {
       score.value += result.score;
     }
@@ -76,15 +65,12 @@ const answerClickedHandler = async (index) => {
 const endQuiz = async () => {
   console.log('Quiz Ended');
   try {
-    const response = await fetch('http://127.0.0.1:5000/add-user', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({ username: playerName.value, score: score.value })  // Envoyer le score réel ici
-    });
-    if (!response.ok) throw new Error('Network response was not ok');
-    const result = await response.json();
+    const payload = { username: playerName.value, score: score.value };
+    console.log('Payload:', payload);  // Ajoutez ce log
+    const response = await axios.post('http://127.0.0.1:5000/add-user', payload);
+    console.log('Response:', response);  // Ajoutez ce log
+    if (response.status !== 201) throw new Error('Network response was not ok');
+    const result = response.data;
     console.log('Quiz end result:', result);
   } catch (error) {
     console.error('Failed to end quiz:', error);
@@ -93,10 +79,8 @@ const endQuiz = async () => {
 
 onMounted(async () => {
   try {
-    const response = await fetch('http://127.0.0.1:5000/quiz-info');
-    if (!response.ok) throw new Error('Network response was not ok');
-    const data = await response.json();
-    totalNumberOfQuestions.value = data.total;
+    const response = await axios.get('http://127.0.0.1:5000/quiz-info');
+    totalNumberOfQuestions.value = response.data.total;
 
     await loadQuestionByPosition(currentQuestionPosition.value);
   } catch (error) {

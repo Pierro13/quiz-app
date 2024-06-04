@@ -1,13 +1,15 @@
 import json
 
+import json
+
 class Question:
-    def __init__(self, id, title, text, image, position, answers=None):
+    def __init__(self, id, title, text, image, position, code=None):
         self.id = id
         self.title = title
         self.text = text
         self.image = image
         self.position = position
-        self.answers = answers or []
+        self.code = code
 
     @classmethod
     def from_row(cls, row):
@@ -16,7 +18,8 @@ class Question:
             title=row['titre'],
             text=row['texte'],
             image=row['image'],
-            position=row['position']
+            position=row['position'],
+            code=row['code'] if 'code' in row.keys() else None
         )
 
     def to_dict(self):
@@ -26,7 +29,7 @@ class Question:
             'text': self.text,
             'image': self.image,
             'position': self.position,
-            'answers': [answer.to_dict() for answer in self.answers]
+            'code': self.code
         }
 
     def to_json(self):
@@ -41,8 +44,9 @@ class Question:
             text=data['text'],
             image=data['image'],
             position=data['position'],
-            answers=[Answer.from_json(answer) for answer in data['answers']]
+            code=data.get('code')
         )
+
 
 class Answer:
     def __init__(self, id, question_id, text, is_correct):

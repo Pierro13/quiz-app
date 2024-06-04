@@ -6,6 +6,12 @@ import jwt_utils
 from models import Question, Answer
 from database import add_question, get_db_connection, get_question_by_position
 from datetime import datetime
+from PIL import Image
+from io import BytesIO
+from pygments import highlight
+from pygments.lexers import PythonLexer
+from pygments.formatters import ImageFormatter
+import os
 
 app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "*"}})
@@ -53,10 +59,25 @@ def create_question():
         title=data.get('title'),
         text=data.get('text'),
         image=data.get('image'),
-        position=data.get('position')
+        position=data.get('position'),
+        code=data.get('code')
     )
+    answers = data.get('answers', [])
+
     try:
+        if question.code:
+            output_path = f"static/code_images/question_{question.position}.png"
+            generate_code_image(question.code, output_path)
+            question.image = output_path  # Met à jour le chemin de l'image
         question_id = add_question(question)
+        for answer in answers:
+            answer_obj = Answer(
+                id=None,
+                question_id=question_id,
+                text=answer['text'],
+                is_correct=answer['is_correct']
+            )
+            add_answer(answer_obj)
         return jsonify({"id": question_id}), 201
     except sqlite3.IntegrityError as e:
         if "Question with this position already exists" in str(e):
@@ -65,6 +86,7 @@ def create_question():
     except Exception as e:
         print(f"Error in /questions POST: {e}")
         return jsonify({"error": "An unexpected error occurred."}), 500
+
 
 
 @app.route('/rebuild-db', methods=['POST'])
@@ -87,10 +109,16 @@ def delete_all_questions_route():
         return jsonify({"error": "An unexpected error occurred."}), 500
     
 @app.route('/questions/all', methods=['GET'])
-def get_questions():
+def get_all_questions_route():
     try:
         questions = get_all_questions()
-        return jsonify([question.to_dict() for question in questions]), 200
+        questions_with_answers = []
+        for question in questions:
+            question_dict = question.to_dict()
+            question_dict['answers'] = [answer.to_dict() for answer in get_answers_by_question_id(question.id)]
+            questions_with_answers.append(question_dict)
+        print("Questions with answers:", questions_with_answers)  # Ajoutez ce log
+        return jsonify(questions_with_answers), 200
     except Exception as e:
         print(f"Error in /questions/all: {e}")
         return jsonify({"error": "An unexpected error occurred."}), 500
@@ -123,7 +151,9 @@ def get_question_by_position_route():
     try:
         question = get_question_by_position(position)
         if question:
-            return jsonify(question.to_dict()), 200  # Ajoutez .to_dict() pour renvoyer un dictionnaire
+            question_dict = question.to_dict()
+            question_dict['answers'] = [answer.to_dict() for answer in get_answers_by_question_id(question.id)]
+            return jsonify(question_dict), 200
         else:
             return jsonify({"error": "Not Found"}), 404
     except Exception as e:
@@ -175,7 +205,7 @@ def submit_answer():
 @app.route('/add-user', methods=['POST'])
 def add_user_route():
     data = request.get_json()
-    print(data)
+    print("Data received:", data)  # Ajoutez ce log
     username = data.get('username')
     score = data.get('score')
     date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
@@ -185,6 +215,21 @@ def add_user_route():
     except Exception as e:
         print(f"Error in /add-user: {e}")
         return jsonify({'Error': 'An unexpected error occurred.'}), 500
+    
+
+
+def generate_code_image(code, output_path):
+    font_path = '/Users/maxime.lombardo/Downloads/dejavu-fonts-ttf-2.37/ttf/DejaVuSerif.ttf'
+    
+    # Créer le répertoire s'il n'existe pas
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+
+    lexer = PythonLexer()
+    formatter = ImageFormatter(font_name=font_path, line_numbers=True)
+    img_data = highlight(code, lexer, formatter)
+    image = Image.open(BytesIO(img_data))
+    image.save(output_path)
+
 
 if __name__ == '__main__':
     app.run(debug=True)
