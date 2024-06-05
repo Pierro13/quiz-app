@@ -36,10 +36,23 @@ const editQuestion = (id) => {
 
 const deleteQuestion = async (id) => {
   try {
-    await axios.delete(`http://127.0.0.1:5000/questions/${id}`);
+    const token = localStorage.getItem('token');
+    if (!token) {
+      throw new Error('No authentication token found');
+    }
+
+    await axios.delete(`http://127.0.0.1:5000/questions/${id}`, {
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    });
     emit('question-deleted'); // Émettre l'événement après la suppression
   } catch (error) {
-    console.error('Failed to delete question:', error);
+    if (error.response && error.response.status === 401) {
+      alert('Unauthorized: Please login to delete a question.');
+    } else {
+      console.error('Failed to delete question:', error);
+    }
   }
 };
 </script>

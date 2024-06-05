@@ -66,7 +66,16 @@ const validatePosition = () => {
 
 const submitForm = async () => {
   try {
-    const response = await axios.post('http://127.0.0.1:5000/questions', newQuestion.value);
+    const token = localStorage.getItem('token');
+    if (!token) {
+      throw new Error('No authentication token found');
+    }
+
+    const response = await axios.post('http://127.0.0.1:5000/questions', newQuestion.value, {
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    });
     if (response.status === 201) {
       alert('Question added successfully!');
       emit('question-added');
@@ -88,11 +97,14 @@ const submitForm = async () => {
   } catch (error) {
     if (error.response && error.response.status === 400) {
       positionError.value = 'Position is already taken. Please choose a different one.';
+    } else if (error.response && error.response.status === 401) {
+      alert('Unauthorized: Please login to add a question.');
     } else {
       console.error('Failed to add question:', error);
     }
   }
 };
+
 </script>
 
 <style scoped>
@@ -106,3 +118,5 @@ form {
   color: red;
 }
 </style>
+
+

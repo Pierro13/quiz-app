@@ -17,14 +17,13 @@
     <div class="right-part">
       <h3>Temps : 0:10</h3>
     </div>
-  </div>
-  <div class="next-button" v-if="!isLastQuestion">
-    <button @click="nextQuestion">Next</button>
+    <div class="next-button" v-if="!isLastQuestion">
+      <button @click="nextQuestion">Next</button>
+    </div>
   </div>
 </template>
 
 <script setup>
-import { watch } from 'vue';
 import AnswerButton from '@/views/Answer-button.vue';
 
 const props = defineProps({
@@ -32,11 +31,6 @@ const props = defineProps({
   isLastQuestion: Boolean,
   score: Number,
 });
-
-watch(() => props.currentQuestion, (newVal) => {
-  console.log('Current Question:', newVal);
-}, { immediate: true });
-
 const emit = defineEmits(['click-on-answer', 'next-question']);
 
 const selectAnswer = (index) => {

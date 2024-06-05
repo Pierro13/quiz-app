@@ -60,8 +60,8 @@ class Answer:
         return cls(
             id=row['id'],
             question_id=row['question_id'],
-            text=row['texte'],
-            is_correct=row['is_correct']
+            text=row['texte'],  # Assurez-vous que le nom de la colonne est correct
+            is_correct=bool(row['is_correct'])  # Convertir en booléen
         )
 
     def to_dict(self):
@@ -69,7 +69,7 @@ class Answer:
             'id': self.id,
             'question_id': self.question_id,
             'text': self.text,
-            'is_correct': self.is_correct
+            'isCorrect': self.is_correct
         }
 
     def to_json(self):
@@ -82,10 +82,8 @@ class Answer:
             id=data['id'],
             question_id=data['question_id'],
             text=data['text'],
-            is_correct=data['is_correct']
+            is_correct=data['isCorrect']
         )
-
-
 
 class User:
     def __init__(self, id, username, date, score=0):
@@ -104,5 +102,33 @@ class User:
     
     def to_json(self):
         return json.dumps(self.to_dict())
+    
+    @classmethod
+    def from_row(cls, row):
+        return cls(
+            id=row['id'],
+            username=row['username'],
+            date=row['date'],
+            score=row['score']
+        )
 
+class Participation:
+    def __init__(self, id, player_name, answers):
+        self.id = id
+        self.player_name = player_name
+        self.answers = answers
 
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'playerName': self.player_name,
+            'answers': json.loads(self.answers)
+        }
+
+    @classmethod
+    def from_row(cls, row):
+        return cls(
+            id=row['id'],
+            player_name=row['player_name'],
+            answers=row['answers']
+        )

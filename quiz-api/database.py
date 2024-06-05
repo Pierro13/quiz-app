@@ -1,5 +1,5 @@
 import sqlite3
-from models import Question, Answer, User
+from models import Question, Answer, User, Participation
 
 def get_db_connection():
     connexion = sqlite3.connect('quiz.db')
@@ -14,8 +14,7 @@ def add_question(question):
     existing_question = cursor.fetchone()
 
     if existing_question:
-        conn.close()
-        raise sqlite3.IntegrityError("Question with this position already exists.")
+        shift_positions(question.position)
 
     cursor.execute('INSERT INTO Questions (titre, texte, image, position, code) VALUES (?, ?, ?, ?, ?)', 
                    (question.title, question.text, question.image, question.position, question.code))
@@ -23,7 +22,6 @@ def add_question(question):
     question_id = cursor.lastrowid
     conn.close()
     return question_id
-
 
 def get_all_questions():
     conn = get_db_connection()
@@ -63,7 +61,7 @@ def get_question_by_position(position):
         return question
     conn.close()
     return None
-    
+
 def get_total_number_of_questions():
     conn = get_db_connection()
     cursor = conn.cursor()
@@ -75,7 +73,13 @@ def get_total_number_of_questions():
 def update_question(question_id, question):
     conn = get_db_connection()
     cursor = conn.cursor()
-    cursor.execute('UPDATE Questions SET titre = ?, texte = ?, image = ?, position = ? WHERE id = ?', (question.title, question.text, question.image, question.position, question_id))
+
+    current_question = get_question_by_id(question_id)
+    if current_question.position != question.position:
+        shift_positions_for_update(current_question.position, question.position)
+    
+    cursor.execute('UPDATE Questions SET titre = ?, texte = ?, image = ?, position = ?, code = ? WHERE id = ?', 
+                   (question.title, question.text, question.image, question.position, question.code, question_id))
     conn.commit()
     conn.close()
 
@@ -90,6 +94,24 @@ def update_question_positions():
         position += 1
     conn.commit()
     conn.close()
+
+def shift_positions(start_position):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute('UPDATE Questions SET position = position + 1 WHERE position >= ?', (start_position,))
+    conn.commit()
+    conn.close()
+
+def shift_positions_for_update(current_position, new_position):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    if new_position < current_position:
+        cursor.execute('UPDATE Questions SET position = position + 1 WHERE position >= ? AND position < ?', (new_position, current_position))
+    else:
+        cursor.execute('UPDATE Questions SET position = position - 1 WHERE position > ? AND position <= ?', (current_position, new_position))
+    conn.commit()
+    conn.close()
+
 
 def delete_question_by_id(question_id):
     conn = get_db_connection()
@@ -115,7 +137,12 @@ def get_answers_by_question_id(question_id):
     cursor.execute('SELECT * FROM Answers WHERE question_id = ?', (question_id,))
     rows = cursor.fetchall()
     conn.close()
-    return [Answer.from_row(row) for row in rows]
+    answers = []
+    for row in rows:
+        answer = Answer.from_row(row)
+        answer.is_correct = bool(answer.is_correct)  # Convert to boolean
+        answers.append(answer)
+    return answers
 
 def get_answer_by_id(answer_id):
     conn = get_db_connection()
@@ -128,6 +155,12 @@ def get_answer_by_id(answer_id):
     else:
         return None
 
+def delete_answers_by_question_id(question_id):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute('DELETE FROM Answers WHERE question_id = ?', (question_id,))
+    conn.commit()
+    conn.close()
 
 import json
 from models import User
@@ -147,6 +180,40 @@ def add_user(username, date, score):
                     INSERT INTO Users (username, date, score)
                    VALUES (?, ?, ?)         
                    ''', (username, date, score))
+    conn.commit()
+    conn.close()
+
+def add_participation(participation):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute('''
+        INSERT INTO Participations (player_name, answers)
+        VALUES (?, ?)
+    ''', (participation.player_name, participation.answers))
+    conn.commit()
+    conn.close()
+
+def get_all_participations_list():
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute('SELECT * FROM Participations')
+    rows = cursor.fetchall()
+    conn.close()
+    participations = []
+    for row in rows:
+        participation = {
+            'id': row['id'],
+            'playerName': row['playername'],
+            'answers': json.loads(row['answers'])
+        }
+        participations.append(participation)
+    return participations
+
+
+def delete_all_participations():
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute('DELETE FROM Participations')
     conn.commit()
     conn.close()
 
