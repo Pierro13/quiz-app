@@ -25,9 +25,9 @@
       </div>
       <div>
         <h3>Answers:</h3>
-        <div v-for="(answer, index) in newQuestion.answers" :key="index">
+        <div v-for="(answer, index) in newQuestion.possibleAnswers" :key="index">
           <input type="text" v-model="answer.text" placeholder="Answer text" required>
-          <input type="checkbox" v-model="answer.is_correct"> Correct
+          <input type="checkbox" v-model="answer.isCorrect"> Correct
         </div>
       </div>
       <button type="submit" :disabled="!!positionError">Add Question</button>
@@ -45,11 +45,11 @@ const newQuestion = ref({
   code: '',
   image: '',
   position: null,
-  answers: [
-    { text: '', is_correct: false },
-    { text: '', is_correct: false },
-    { text: '', is_correct: false },
-    { text: '', is_correct: false }
+  possibleAnswers: [
+    { text: '', isCorrect: false },
+    { text: '', isCorrect: false },
+    { text: '', isCorrect: false },
+    { text: '', isCorrect: false }
   ]
 });
 
@@ -76,35 +76,42 @@ const submitForm = async () => {
         'Authorization': `Bearer ${token}`
       }
     });
-    if (response.status === 201) {
+    if (response.status === 200) {
       alert('Question added successfully!');
       emit('question-added');
-      newQuestion.value = {
-        title: '',
-        text: '',
-        code: '',
-        image: '',
-        position: null,
-        answers: [
-          { text: '', is_correct: false },
-          { text: '', is_correct: false },
-          { text: '', is_correct: false },
-          { text: '', is_correct: false }
-        ]
-      };
-      positionError.value = '';
+      resetForm();
     }
   } catch (error) {
-    if (error.response && error.response.status === 400) {
-      positionError.value = 'Position is already taken. Please choose a different one.';
-    } else if (error.response && error.response.status === 401) {
-      alert('Unauthorized: Please login to add a question.');
-    } else {
-      console.error('Failed to add question:', error);
-    }
+    handleFormError(error);
   }
 };
 
+const resetForm = () => {
+  newQuestion.value = {
+    title: '',
+    text: '',
+    code: '',
+    image: '',
+    position: null,
+    possibleAnswers: [
+      { text: '', isCorrect: false },
+      { text: '', isCorrect: false },
+      { text: '', isCorrect: false },
+      { text: '', isCorrect: false }
+    ]
+  };
+  positionError.value = '';
+};
+
+const handleFormError = (error) => {
+  if (error.response && error.response.status === 400) {
+    positionError.value = 'Position is already taken. Please choose a different one.';
+  } else if (error.response && error.response.status === 401) {
+    alert('Unauthorized: Please login to add a question.');
+  } else {
+    console.error('Failed to add question:', error);
+  }
+};
 </script>
 
 <style scoped>
@@ -118,5 +125,3 @@ form {
   color: red;
 }
 </style>
-
-

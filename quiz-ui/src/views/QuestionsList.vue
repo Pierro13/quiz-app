@@ -7,7 +7,7 @@
           <h3>{{ question.title }}</h3>
           <p>{{ question.text }}</p>
           <ul>
-            <li v-for="answer in question.answers" :key="answer.id">
+            <li v-for="answer in sortedQuestions.answers" :key="answer.id">
               {{ answer.text }} ({{ answer.is_correct ? 'Correct' : 'Incorrect' }})
             </li>
           </ul>
@@ -22,10 +22,16 @@
 <script setup>
 import { useRouter } from 'vue-router';
 import axios from 'axios';
+import { defineProps, defineEmits, computed } from 'vue';
 
 const props = defineProps({
   questions: Array
 });
+
+const sortedQuestions = computed(() => {
+  return [...props.questions].sort((a, b) => a.position - b.position);
+});
+
 const emit = defineEmits(['question-deleted']);
 
 const router = useRouter();

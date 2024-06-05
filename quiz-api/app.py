@@ -187,10 +187,11 @@ def add_participation_route():
         question = get_question_by_position(question_position)
         if question:
             possible_answers = get_answers_by_question_id(question.id)
-            if 0 <= answer_index - 1 < len(possible_answers):  # vérifier que l'index de réponse est valide
-                chosen_answer = possible_answers[answer_index - 1]
-                if chosen_answer.is_correct:
-                    score += 1
+            if answer_index is not None:
+                if 0 <= answer_index - 1 < len(possible_answers):
+                    chosen_answer = possible_answers[answer_index - 1]
+                    if chosen_answer.is_correct:
+                        score += 1
 
     try:
         participation = Participation(None, player_name, json.dumps(answers))
@@ -300,7 +301,12 @@ def update_question_route(question_id):
     try:
         if not get_question_by_id(question_id):
             return 'Question not found', 404
+        if question.code:
+            output_path = f"static/code_images/question_{question.position}.webp"
+            generate_code_image(question.code, output_path)
+            question.image = output_path
         
+
         update_question(question_id, question)
 
         # Supprimer les anciennes réponses
@@ -335,15 +341,29 @@ def end_quiz():
 def submit_answer():
     data = request.get_json()
     answer_id = data.get('answer_id')
+
+    if answer_id is None:
+        return jsonify({"error": "Answer ID is required"}), 400
+
     try:
         answer = get_answer_by_id(answer_id)
-        if answer and answer.is_correct:
-            return jsonify({"correct": True, "score": 1}), 200
+        if answer:
+            question = get_question_by_id(answer.question_id)
+            if question:
+                correct_answer = next((a for a in get_answers_by_question_id(question.id) if a.is_correct), None)
+                if correct_answer and correct_answer.id == answer_id:
+                    return jsonify({"correct": True, "score": 1}), 200
+                else:
+                    return jsonify({"correct": False, "score": 0}), 200
+            else:
+                return jsonify({"error": "Question not found"}), 404
         else:
-            return jsonify({"correct": False, "score": 0}), 200
+            return jsonify({"error": "Answer not found"}), 404
     except Exception as e:
         print(f"Error in /submit-answer: {e}")
         return jsonify({"error": "An unexpected error occurred."}), 500
+
+
     
 @app.route('/add-user', methods=['POST'])
 def add_user_route():

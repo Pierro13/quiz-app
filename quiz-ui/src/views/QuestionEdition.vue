@@ -5,6 +5,12 @@
       <input v-model="localQuestion.title" placeholder="Title" />
       <textarea v-model="localQuestion.text" placeholder="Text"></textarea>
       <input v-model="localQuestion.image" placeholder="Image URL" />
+      <input v-model="localQuestion.position" type="number" placeholder="Position" />
+      <div v-for="(answer, index) in localQuestion.possibleAnswers" :key="index">
+        <input v-model="answer.text" placeholder="Answer text" />
+        <input v-model="answer.is_correct" type="checkbox" />
+      </div>
+      <input v-model="localQuestion.code" placeholder="Code" />
       <button @click="saveQuestion">Save</button>
       <button @click="$emit('save')">Cancel</button>
     </div>

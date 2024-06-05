@@ -8,8 +8,8 @@ onMounted(async () => {
     console.log("Scores page mounted");
     try {
         const response = await quizApiService.getQuizInfo();
-        console.log("Scores récupérés : ", response); // Log the scores
-        registeredScores.value = response; // Assign the scores array
+        console.log("Scores récupérés : ", response.scores); // Log the scores
+        registeredScores.value = response.scores; // Assign the scores array
     } catch (error) {
         console.error("Erreur lors de la récupération des scores : ", error);
     }
@@ -23,16 +23,14 @@ onMounted(async () => {
     <thead>
       <tr>
         <th>ID</th>
-        <th>Username</th>
-        <th>Date</th>
+        <th>Player Name</th>
         <th>Score</th>
       </tr>
     </thead>
     <tbody>
-      <tr v-for="scoreEntry in registeredScores" v-bind:key="scoreEntry.date">
+      <tr v-for="scoreEntry in registeredScores" v-bind:key="scoreEntry.id">
         <td>{{ scoreEntry.id }}</td>
-        <td>{{ scoreEntry.username }}</td>
-        <td>{{ scoreEntry.date }}</td>
+        <td>{{ scoreEntry.playerName }}</td>
         <td>{{ scoreEntry.score }}</td>
       </tr>
     </tbody>
@@ -41,14 +39,33 @@ onMounted(async () => {
 </template>
 
 <style scoped>
-  .container{
+  .container {
     display: flex;
     flex-direction: column;
     align-items: center;
   }
 
-  h1{
+  h1 {
     font-size: 2em;
     margin-top: 5vh;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  th, td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: left;
+  }
+
+  th {
+    background-color: #f2f2f2;
+  }
+
+  tbody tr:nth-child(even) {
+    background-color: #f9f9f9;
   }
 </style>

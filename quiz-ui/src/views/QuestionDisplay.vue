@@ -9,7 +9,7 @@
         <img v-if="currentQuestion.image" :src="`http://127.0.0.1:5000/${currentQuestion.image}`" alt="Question image" />
       </div>
       <div class="answers-container">
-        <div class="answers" v-for="(answer, index) in currentQuestion.answers" :key="index">
+        <div class="answers" v-for="(answer, index) in currentQuestion.possibleAnswers" :key="index">
           <AnswerButton :text="answer.text" :color="colors[index % colors.length]" @click="selectAnswer(index)" />
         </div>
       </div>
@@ -34,6 +34,10 @@ const props = defineProps({
 const emit = defineEmits(['click-on-answer', 'next-question']);
 
 const selectAnswer = (index) => {
+  if (index < 0 || index >= props.currentQuestion.possibleAnswers.length) {
+    console.error("Invalid answer index:", index);
+    return;
+  }
   emit('click-on-answer', index);
 };
 
