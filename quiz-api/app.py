@@ -26,32 +26,56 @@ def hello_world():
 def GetQuizInfo():
     try:
         total_questions = get_total_number_of_questions()
+        print(f"Total questions: {total_questions}")
+
         participations = get_all_participations_list()
-        
+        print(f"Participations: {participations}")
+
+        if not participations:
+            return jsonify({"size": total_questions, "scores": []}), 200
+
         # Calculer les scores pour chaque participation
         for participation in participations:
             score = calculate_score(participation)
             participation['score'] = score
-        
+
         # Trier les participations par score décroissant
         sorted_participations = sorted(participations, key=lambda x: x['score'], reverse=True)
+        print(f"Sorted participations: {sorted_participations}")
 
         return jsonify({"size": total_questions, "scores": sorted_participations}), 200
     except Exception as e:
         print(f"Error in /quiz-info: {e}")
         return jsonify({"error": "An unexpected error occurred."}), 500
-
+    
 def calculate_score(participation):
     answers = participation['answers']
+    print(f"Calculating score for answers: {answers}")
     score = 0
     questions = get_all_questions()
-    for i, answer_index in enumerate(answers):
-        question = questions[i]
-        correct_answer = next((a for a in question.answers if a.is_correct), None)
-        if correct_answer and correct_answer.id == answer_index:
-            score += 1
-    return score
+    
+    for question in questions:
+        question.answers = get_answers_by_question_id(question.id)
 
+    if not questions:
+        print("No questions found.")
+        return 0
+
+    for i, answer_index in enumerate(answers):
+        if i >= len(questions):
+            print(f"Answer index {i} is out of range for questions.")
+            break
+        question = questions[i]
+        print(f"Processing question {i+1}/{len(questions)} with ID: {question.id}")
+        correct_answer = next((a for a in question.answers if a.is_correct), None)
+        chosen_answer = question.answers[answer_index - 1] if answer_index > 0 else None
+        if correct_answer and chosen_answer:
+            print(f"Correct answer ID: {correct_answer.id}, Chosen answer ID: {chosen_answer.id}")
+            if correct_answer.id == chosen_answer.id:
+                score += 1
+
+    print(f"Calculated score: {score}")
+    return score
 
 
 @app.route('/scores', methods=['GET'])
@@ -170,7 +194,7 @@ def add_participation_route():
 
     try:
         participation = Participation(None, player_name, json.dumps(answers))
-        add_participation(participation)
+        add_participation_to_db(participation)
         return jsonify({
             'playerName': player_name,
             'score': score,
@@ -179,6 +203,7 @@ def add_participation_route():
     except Exception as e:
         print(f"Error in /participations POST: {e}")
         return jsonify({'Error': 'An unexpected error occurred.'}), 500
+
 
 @app.route('/participations', methods=['GET'])
 def get_all_participations_route():

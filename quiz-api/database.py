@@ -29,7 +29,9 @@ def get_all_questions():
     cursor.execute('SELECT * FROM Questions')
     rows = cursor.fetchall()
     conn.close()
-    return [Question.from_row(row) for row in rows]
+    questions = [Question.from_row(row) for row in rows]
+    print(f"Questions loaded: {questions}")  # Ajoutez ce log pour débogage
+    return questions
 
 def get_question_by_id(question_id):
     conn = get_db_connection()
@@ -38,7 +40,9 @@ def get_question_by_id(question_id):
     row = cursor.fetchone()
     conn.close()
     if row:
-        return Question.from_row(row)
+        question = Question.from_row(row)
+        question.answers = get_answers_by_question_id(question.id)
+        return question
     else:
         return None
 
@@ -137,12 +141,10 @@ def get_answers_by_question_id(question_id):
     cursor.execute('SELECT * FROM Answers WHERE question_id = ?', (question_id,))
     rows = cursor.fetchall()
     conn.close()
-    answers = []
-    for row in rows:
-        answer = Answer.from_row(row)
-        answer.is_correct = bool(answer.is_correct)  # Convert to boolean
-        answers.append(answer)
+    answers = [Answer.from_row(row) for row in rows]
+    print(f"Answers loaded for question_id {question_id}: {answers}")
     return answers
+
 
 def get_answer_by_id(answer_id):
     conn = get_db_connection()
@@ -193,6 +195,17 @@ def add_participation(participation):
     conn.commit()
     conn.close()
 
+# Ajoutez cette fonction pour ajouter une participation à la base de données
+def add_participation_to_db(participation):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute('''
+        INSERT INTO Participations (player_name, answers)
+        VALUES (?, ?)
+    ''', (participation.player_name, participation.answers))
+    conn.commit()
+    conn.close()
+
 def get_all_participations_list():
     conn = get_db_connection()
     cursor = conn.cursor()
@@ -201,14 +214,11 @@ def get_all_participations_list():
     conn.close()
     participations = []
     for row in rows:
-        participation = {
-            'id': row['id'],
-            'playerName': row['playername'],
-            'answers': json.loads(row['answers'])
-        }
-        participations.append(participation)
+        participation = Participation.from_row(row)
+        participation_dict = participation.to_dict()
+        participation_dict['score'] = 0  # Initialiser le score à 0, il sera calculé dans GetQuizInfo
+        participations.append(participation_dict)
     return participations
-
 
 def delete_all_participations():
     conn = get_db_connection()
