@@ -7,7 +7,6 @@
       <button @click="login">Login</button>
     </div>
     <div v-else>
-      <h2>Welcome to the Admin Panel</h2>
       <AddQuestion @question-added="fetchQuestions"/>
       <QuestionsList :questions="questions" @question-deleted="fetchQuestions"/>
     </div>
@@ -51,5 +50,4 @@ if (token.value) {
 </script>
 
 <style scoped>
-/* Ajoutez votre style ici */
 </style>

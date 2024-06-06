@@ -1,7 +1,7 @@
 <template>
   <div>
     <h2>Add New Question</h2>
-    <form @submit.prevent="submitForm">
+    <form @submit.prevent="submitForm" class="form-question">
       <div>
         <label for="title">Title:</label>
         <input type="text" id="title" v-model="newQuestion.title" required>
@@ -70,7 +70,9 @@ const submitForm = async () => {
     if (!token) {
       throw new Error('No authentication token found');
     }
-
+    if(newQuestion.value.image){
+      newQuestion.value.image += '?t=' + new Date().getTime();
+    }
     const response = await axios.post('http://127.0.0.1:5000/questions', newQuestion.value, {
       headers: {
         'Authorization': `Bearer ${token}`
@@ -115,10 +117,13 @@ const handleFormError = (error) => {
 </script>
 
 <style scoped>
-form {
+h2{
+  text-align: center;
+}
+.form-question {
+  border: 1px solid black;
+  border-radius: 25px;
   display: flex;
-  flex-direction: column;
-  gap: 10px;
 }
 
 .error {
