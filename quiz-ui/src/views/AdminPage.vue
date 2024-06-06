@@ -10,7 +10,6 @@
       
     </div>
     <div v-else class="panel-container">
-      <h2>Welcome to the Admin Panel</h2>
       <AddQuestion @question-added="fetchQuestions"/>
       <QuestionsList :questions="questions" @question-deleted="fetchQuestions"/>
     </div>
