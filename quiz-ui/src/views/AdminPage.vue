@@ -1,12 +1,15 @@
 <template>
-  <div>
+  <div class="admin-container">
     <h1>Admin Panel</h1>
-    <div v-if="!token">
+    <div v-if="!token" class="login-container">
       <h2>Login</h2>
-      <input type="password" v-model="password" placeholder="Password">
-      <button @click="login">Login</button>
+      <div class="input-container">
+        <input type="password" v-model="password" placeholder="Password" class="admin-input">
+        <button @click="login" class="admin-login-button">Login</button>
+      </div>
+      
     </div>
-    <div v-else>
+    <div v-else class="panel-container">
       <h2>Welcome to the Admin Panel</h2>
       <AddQuestion @question-added="fetchQuestions"/>
       <QuestionsList :questions="questions" @question-deleted="fetchQuestions"/>
@@ -51,5 +54,52 @@ if (token.value) {
 </script>
 
 <style scoped>
-/* Ajoutez votre style ici */
+  h1 {
+    text-align: center;
+  }
+
+  .admin-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .login-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    width: 30%;
+    height: 17vh;
+
+    border-radius: 10px;
+    background-color: rgb(172, 236, 161);
+  }
+
+  .admin-input {
+    border: none;
+    border-top-left-radius: 5px;
+    border-bottom-left-radius: 5px;
+    padding: 10px;
+  }
+
+  .admin-input:focus {
+    outline: none;
+    border: 0.5px solid rgb(0, 128, 0);
+  }
+
+  .admin-login-button {
+    border: none;
+    border-top-right-radius: 5px;
+    border-bottom-right-radius: 5px;
+    padding: 10px;
+    background-color: rgb(0, 128, 0);
+    color: white;
+    cursor: pointer;
+  }
+
+  .admin-login-button:hover {
+    background-color: rgb(0, 100, 0);
+  }
+
 </style>
