@@ -86,7 +86,11 @@ def GetScores():
 @app.route('/login', methods=['POST'])
 def login():
     payload = request.get_json()
-    password = payload['password']
+    if payload is None:
+        return 'Bad Request: No JSON data found', 400
+    password = payload.get('password')
+    if password is None:
+        return 'Bad Request: No password found', 400
     print(f"Password received: {password}")
     if password == 'flask2023': 
         token = jwt_utils.build_token()
@@ -96,6 +100,7 @@ def login():
         return {"token": token}, 200
     else:
         return 'Unauthorized', 401
+
     
 def is_logged():
     auth_header = request.headers.get('Authorization')
@@ -380,7 +385,7 @@ def add_user_route():
         return jsonify({'Error': 'An unexpected error occurred.'}), 500
 
 def generate_code_image(code, output_path):
-    font_path = '/Users/maxime.lombardo/Downloads/dejavu-fonts-ttf-2.37/ttf/DejaVuSerif.ttf'
+    font_path = 'DejaVuSerif.ttf'
     
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
 
