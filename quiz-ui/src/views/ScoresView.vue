@@ -20,20 +20,20 @@ onMounted(async () => {
   <div class="container">
     <h1>Tableau des scores</h1>
     <table>
-    <thead>
-      <tr>
-        <th>ID</th>
-        <th>Player Name</th>
-        <th>Score</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr v-for="scoreEntry in registeredScores" v-bind:key="scoreEntry.id">
-        <td>{{ scoreEntry.id }}</td>
-        <td>{{ scoreEntry.playerName }}</td>
-        <td>{{ scoreEntry.score }}</td>
-      </tr>
-    </tbody>
+      <thead>
+        <tr>
+          <th class="top">ID</th>
+          <th>Player Name</th>
+          <th>Score</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr v-for="scoreEntry in registeredScores" v-bind:key="scoreEntry.id">
+          <td>{{ scoreEntry.id }}</td>
+          <td class="test">{{ scoreEntry.playerName }}</td>
+          <td>{{ scoreEntry.score }}</td>
+        </tr>
+      </tbody>
   </table>
   </div>
 </template>
@@ -51,21 +51,19 @@ onMounted(async () => {
   }
 
   table {
-    width: 100%;
+    width: 40%;
     border-collapse: collapse;
-  }
-
-  th, td {
-    border: 1px solid #ddd;
-    padding: 8px;
-    text-align: left;
+    background-color: #ACECA1;
+    border-radius: 10px;
   }
 
   th {
-    background-color: #f2f2f2;
+    background-color: #6C9D6B;
+    color: white;
   }
-
-  tbody tr:nth-child(even) {
-    background-color: #f9f9f9;
+  
+  th, td {
+    padding: 8px;
+    text-align: center;
   }
 </style>
