@@ -10,7 +10,13 @@
       
     </div>
     <div v-else class="panel-container">
-      <AddQuestion @question-added="fetchQuestions"/>
+      <div class="container">
+        <div class="buttons-container">
+          <button @click="displayNewQuestionForm" class="add-question-button">Add Question</button>
+          <button @click="logout" class="logout-button">Logout</button>
+        </div>
+      </div>
+      <AddQuestion v-if="showAddQuestion" @question-added="fetchQuestions"/>
       <QuestionsList :questions="questions" @question-deleted="fetchQuestions"/>
     </div>
   </div>
@@ -25,6 +31,11 @@ import QuestionsList from './QuestionsList.vue';
 const password = ref('');
 const token = ref(localStorage.getItem('token') || '');
 const questions = ref([]);
+const showAddQuestion = ref(false);
+
+const displayNewQuestionForm = () => {
+  showAddQuestion.value = true;
+};
 
 const fetchQuestions = async () => {
   try {
@@ -101,4 +112,34 @@ if (token.value) {
     background-color: rgb(0, 100, 0);
   }
 
+
+  .logout-button {
+    border: 1px solid black;
+    border-radius: 30px;
+    background-color: rgb(172, 236, 161);
+    color: black;
+    padding: 10px 20px;
+    font-size: 18px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+
+  .logout-button:hover {
+    background-color: rgb(0, 100, 0); /* Change background color to yellow when hovering over the button */
+  }
+
+  .add-question-button{
+    border: 1px solid black;
+    border-radius: 30px;
+    background-color: rgb(172, 236, 161);
+    color: black;
+    padding: 10px 20px;
+    font-size: 18px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+
+  .add-question-button:hover{
+    background-color: rgb(0, 100, 0);
+  }
 </style>
