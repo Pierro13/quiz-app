@@ -226,4 +226,5 @@ def delete_all_participations():
     cursor.execute('DELETE FROM Participations')
     conn.commit()
     conn.close()
+    
 

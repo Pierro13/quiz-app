@@ -12,7 +12,10 @@
       </div>
       <div>
         <label for="code">Code:</label>
-        <textarea id="code" v-model="newQuestion.code"></textarea>
+        <div class="code-editor">
+          <textarea id="code" v-model="newQuestion.code" @input="highlightCode" class="code-input"></textarea>
+          <pre v-html="highlightedCode" class="hljs code-output"></pre>
+        </div>
       </div>
       <div>
         <label for="image">Image URL:</label>
@@ -36,8 +39,10 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, watch, onMounted } from 'vue';
 import axios from 'axios';
+import hljs from 'highlight.js';
+import 'highlight.js/styles/github.css'; // Choisissez un style approprié
 
 const newQuestion = ref({
   title: '',
@@ -54,6 +59,7 @@ const newQuestion = ref({
 });
 
 const positionError = ref('');
+const highlightedCode = ref('');
 const emit = defineEmits(['question-added']);
 
 const validatePosition = () => {
@@ -61,6 +67,14 @@ const validatePosition = () => {
     positionError.value = 'Position must be a positive number.';
   } else {
     positionError.value = '';
+  }
+};
+
+const highlightCode = () => {
+  if (newQuestion.value.code) {
+    highlightedCode.value = hljs.highlightAuto(newQuestion.value.code).value;
+  } else {
+    highlightedCode.value = '';
   }
 };
 
@@ -102,6 +116,7 @@ const resetForm = () => {
       { text: '', isCorrect: false }
     ]
   };
+  highlightedCode.value = '';
   positionError.value = '';
 };
 
@@ -114,18 +129,48 @@ const handleFormError = (error) => {
     console.error('Failed to add question:', error);
   }
 };
+
+watch(() => newQuestion.value.code, highlightCode);
+
+onMounted(() => {
+  highlightCode();
+});
 </script>
 
 <style scoped>
-h2{
+h2 {
   text-align: center;
 }
 .form-question {
   border: 1px solid black;
   border-radius: 25px;
-  display: flex;
+  padding: 20px;
 }
-
+.code-editor {
+  display: flex;
+  position: relative;
+}
+.code-input {
+  width: 50%;
+  height: 150px;
+  font-family: monospace;
+  font-size: 14px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  padding: 10px;
+  resize: none;
+}
+.code-output {
+  width: 50%;
+  height: 150px;
+  background-color: #f5f5f5;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  padding: 10px;
+  overflow: auto;
+  white-space: pre-wrap; /* Permet l'habillage du texte */
+  word-wrap: break-word; /* Permet l'habillage du texte */
+}
 .error {
   color: red;
 }

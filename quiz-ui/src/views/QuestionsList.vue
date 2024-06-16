@@ -15,8 +15,10 @@
           <div class="answers">
             <p v-for="answer in question.possibleAnswers" :key="answer.id">-> {{ answer.text }} ({{ answer.isCorrect ? 'Correct' : 'Incorrect' }})</p>
           </div>
-          <button @click="editQuestion(question.id)">Modifier</button>
-          <button @click="deleteQuestion(question.id)">Supprimer</button>
+          <div class="buttons">
+            <button @click="editQuestion(question.id)">Modifier</button>
+            <button @click="deleteQuestion(question.id)">Supprimer</button>
+          </div>
         </div>
       </div>
     </div>
@@ -112,6 +114,12 @@ h2 {
 
 .card h3 {
   text-align: center;
+}
+
+.buttons{
+  display: flex;
+  justify-content: space-around;
+
 }
 
 .bold {

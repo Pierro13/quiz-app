@@ -8,25 +8,37 @@ const currentQuestion = ref(null);
 const score = ref(0);
 const questions = ref([]);
 let questionIndex = 0;
+let isSubmitting = ref(false);
 
-const loadNextQuestion = async () => {
+const loadNextQuestion = () => {
     if (questionIndex < questions.value.length) {
         currentQuestion.value = questions.value[questionIndex];
+        console.log("Loaded question:", questionIndex, currentQuestion.value);
         questionIndex++;
+        isSubmitting.value = false;
     } else {
         currentQuestion.value = null; // No more questions
-        await endQuiz();
+        console.log("No more questions. Ending quiz.");
+        endQuiz();
     }
 };
 
 const answerClickedHandler = async (index) => {
+    if (isSubmitting.value) {
+        console.warn("Answer already submitted for this question.");
+        return;
+    }
+    isSubmitting.value = true;
+
     if (!currentQuestion.value || !currentQuestion.value.possibleAnswers || index >= currentQuestion.value.possibleAnswers.length) {
         console.error("Invalid answer index:", index);
+        isSubmitting.value = false;
         return;
     }
 
     const answerId = currentQuestion.value.possibleAnswers[index].id;
     currentQuestion.value.selectedAnswer = index + 1; // Store the selected answer index
+    console.log("Submitting answer with ID:", answerId);
     try {
         const response = await fetch('http://127.0.0.1:5000/submit-answer', {
             method: 'POST',
@@ -36,13 +48,15 @@ const answerClickedHandler = async (index) => {
             body: JSON.stringify({ answer_id: answerId }),
         });
         const result = await response.json();
+        console.log("Answer submitted. Result:", result);
         if (result.correct) {
             score.value += result.score;
         }
+        loadNextQuestion();
     } catch (error) {
         console.error('Failed to submit answer:', error);
+        isSubmitting.value = false; // Allow resubmission if there's an error
     }
-    await loadNextQuestion();
 };
 
 const endQuiz = async () => {
@@ -50,7 +64,7 @@ const endQuiz = async () => {
     if (playerName) {
         const participation = {
             playerName: playerName,
-            answers: questions.value.map(q => q.selectedAnswer),
+            answers: questions.value.map(q => q.selectedAnswer || null),
         };
         try {
             const response = await fetch('http://127.0.0.1:5000/participations', {
@@ -72,7 +86,8 @@ onMounted(async () => {
     try {
         const response = await quizApiService.getQuizQuestions();
         questions.value = response;
-        await loadNextQuestion();
+        console.log("Questions loaded:", questions.value);
+        loadNextQuestion();
     } catch (error) {
         console.error("Erreur lors de la récupération des questions:", error);
     }

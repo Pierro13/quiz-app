@@ -106,11 +106,17 @@ def is_logged():
     auth_header = request.headers.get('Authorization')
     if not auth_header:
         return False
-    
     token = auth_header.split(" ")[1] if len(auth_header.split(" ")) == 2 else None
     if not token or not jwt_utils.verify_token(token):
         return False
     return True
+
+@app.route('/check-token-validity', methods=['GET'])
+def check_token_validity():
+    if is_logged():
+        return {"valid": True}, 200
+    return {"valid": False}, 401
+
 
 @app.route('/questions', methods=['POST'])
 def create_question():
@@ -133,10 +139,10 @@ def create_question():
     answers = data.get('possibleAnswers', [])
     
     try:
-        if question.code:
-            output_path = f"static/code_images/question_{question.position}.webp"
-            generate_code_image(question.code, output_path)
-            question.image = output_path
+        # if question.code:
+        #     output_path = f"static/code_images/question_{question.position}.webp"
+        #     generate_code_image(question.code, output_path)
+        #     question.image = output_path
         
         question_id = add_question(question)
         
@@ -347,6 +353,8 @@ def submit_answer():
     data = request.get_json()
     answer_id = data.get('answer_id')
 
+    print(f"Request received: {data}")
+
     if answer_id is None:
         return jsonify({"error": "Answer ID is required"}), 400
 
@@ -357,17 +365,20 @@ def submit_answer():
             if question:
                 correct_answer = next((a for a in get_answers_by_question_id(question.id) if a.is_correct), None)
                 if correct_answer and correct_answer.id == answer_id:
+                    print(f"Answer {answer_id} is correct.")
                     return jsonify({"correct": True, "score": 1}), 200
                 else:
+                    print(f"Answer {answer_id} is incorrect.")
                     return jsonify({"correct": False, "score": 0}), 200
             else:
+                print(f"Question not found for answer {answer_id}.")
                 return jsonify({"error": "Question not found"}), 404
         else:
+            print(f"Answer {answer_id} not found.")
             return jsonify({"error": "Answer not found"}), 404
     except Exception as e:
         print(f"Error in /submit-answer: {e}")
         return jsonify({"error": "An unexpected error occurred."}), 500
-
 
     
 @app.route('/add-user', methods=['POST'])

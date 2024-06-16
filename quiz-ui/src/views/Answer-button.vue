@@ -1,32 +1,27 @@
 <template>
-    <button :style="{ backgroundColor: color }" class="color-button">
-      {{ text }}
-    </button>
-  </template>
-  
-  <script setup>
-  const props = defineProps({
-    text: {
-      type: String,
-      required: true
-    },
-    color: {
-      type: String,
-      required: true
-    }
-  });
-  </script>
-  
-  <style scoped>
-  .color-button {
-    color: black;
-    font-size: 18px;
-    font-weight: bold;
-    border: none;
-    padding: 20px;
-    cursor: pointer;
-    margin: 10px;
-    width: 15vw;
-  }
-  </style>
-  
+  <button class="answer-button" :style="{ backgroundColor: color }" @click="$emit('click')">
+    {{ text }}
+  </button>
+</template>
+
+<script setup>
+const props = defineProps({
+  text: String,
+  color: String
+});
+</script>
+
+<style scoped>
+.answer-button {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  color: white;
+  font-size: 16px;
+  cursor: pointer;
+  text-align: center;
+  min-width: 10vh;
+  max-width: 20vw;
+  word-wrap: break-word;
+}
+</style>
