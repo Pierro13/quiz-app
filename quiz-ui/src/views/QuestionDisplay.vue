@@ -47,7 +47,7 @@ const timeLeft = ref(10);
 const timerInterval = ref(null);
 
 function startTimer(){
-  timeLeft.value = 50;
+  timeLeft.value = 500;
   if(timerInterval.value) clearInterval(timerInterval.value);
   timerInterval.value = setInterval(() => {
     if(timeLeft.value > 0){
@@ -207,6 +207,7 @@ const adjustButtonSizes = () => {
   display: flex;
   flex-direction: column;
   align-items: center;
+  width: 50vw;
 }
 
 .next-button {

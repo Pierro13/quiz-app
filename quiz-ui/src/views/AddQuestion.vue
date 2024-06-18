@@ -18,7 +18,7 @@
         </div>
       </div>
       <div class="form-group">
-        <label for="image">URL de l'image(Optionnel):</label>
+        <label for="image">URL de l'image (Optionnel):</label>
         <input type="text" id="image" v-model="newQuestion.image" class="input">
       </div>
       <div class="form-group">
@@ -30,7 +30,7 @@
         <label>Réponses:</label>
         <div v-for="(answer, index) in newQuestion.possibleAnswers" :key="index" class="answer-container">
           <input type="text" v-model="answer.text" class="input" placeholder="Texte de réponse" required>
-          <input type="checkbox" v-model="answer.isCorrect"> Correct
+          <input type="radio" :value="index" v-model="correctAnswerIndex"> Correct
         </div>
       </div>
       <div class="button-container">
@@ -39,6 +39,7 @@
     </form>
   </div>
 </template>
+
 
 
 <script setup>
@@ -61,9 +62,16 @@ const newQuestion = ref({
   ]
 });
 
+const correctAnswerIndex = ref(null);
 const positionError = ref('');
 const highlightedCode = ref('');
 const emit = defineEmits(['question-added']);
+
+watch(correctAnswerIndex, (newIndex) => {
+  newQuestion.value.possibleAnswers.forEach((answer, index) => {
+    answer.isCorrect = index === newIndex;
+  });
+});
 
 const validatePosition = () => {
   if (newQuestion.value.position < 1) {
@@ -119,6 +127,7 @@ const resetForm = () => {
       { text: '', isCorrect: false }
     ]
   };
+  correctAnswerIndex.value = null;
   highlightedCode.value = '';
   positionError.value = '';
 };
@@ -141,6 +150,7 @@ onMounted(() => {
 </script>
 
 
+
 <style scoped>
 .container {
   max-width: 800px;
@@ -150,6 +160,7 @@ onMounted(() => {
   border-radius: 8px;
   background-color: #f9f9f9;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  padding-right: 4vw;
 }
 
 .title {
