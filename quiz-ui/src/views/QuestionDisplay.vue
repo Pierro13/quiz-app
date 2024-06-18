@@ -47,7 +47,7 @@ const timeLeft = ref(10);
 const timerInterval = ref(null);
 
 function startTimer(){
-  timeLeft.value = 5;
+  timeLeft.value = 50;
   if(timerInterval.value) clearInterval(timerInterval.value);
   timerInterval.value = setInterval(() => {
     if(timeLeft.value > 0){
@@ -152,11 +152,10 @@ const adjustButtonSizes = () => {
 .parts-container {
   display: flex;
   justify-content: center;
-  border: 1px solid green;
+  border: 1px solid black;
 }
 
 .left-part {
-  border: 1px solid blue;
   width: 10%;
   display: flex;
   justify-content: center;
@@ -164,7 +163,8 @@ const adjustButtonSizes = () => {
 }
 
 .middle-part {
-  border: 1px solid black;
+  border-left: 1px solid black;
+  border-right: 1px solid black;
   width: 80%;
   display: flex;
   flex-direction: column;
@@ -197,7 +197,6 @@ const adjustButtonSizes = () => {
 }
 
 .right-part {
-  border: 1px solid red;
   width: 10%;
   display: flex;
   justify-content: center;
