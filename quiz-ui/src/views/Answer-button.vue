@@ -21,7 +21,8 @@ const props = defineProps({
   cursor: pointer;
   text-align: center;
   min-width: 10vh;
-  max-width: 20vw;
+  max-width: 100%; /* Allow the button to expand to fill the container */
   word-wrap: break-word;
+  box-sizing: border-box; /* Ensure padding and border are included in the element's total width and height */
 }
 </style>

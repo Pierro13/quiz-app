@@ -12,7 +12,7 @@
       </div>
       <div class="answers-container">
         <div class="answers" v-for="(answer, index) in currentQuestion.possibleAnswers" :key="index">
-          <AnswerButton :text="answer.text" :color="colors[index % colors.length]" :disabled="isAnswerSubmitted" @click="selectAnswer(index)" />
+          <AnswerButton ref="answerButtons" :text="answer.text" :color="colors[index % colors.length]" :disabled="isAnswerSubmitted" @click="selectAnswer(index)" />
         </div>
       </div>
     </div>
@@ -26,7 +26,7 @@
 </template>
 
 <script setup>
-import { ref, watch, onMounted } from 'vue';
+import { ref, watch, onMounted, nextTick } from 'vue';
 import hljs from 'highlight.js';
 import 'highlight.js/styles/github.css';
 
@@ -77,11 +77,40 @@ watch(() => props.currentQuestion, (newQuestion, oldQuestion) => {
   console.log("Current question changed from:", oldQuestion, "to:", newQuestion);
   highlightCode();
   isAnswerSubmitted.value = false;
+  nextTick(() => adjustButtonSizes());
 });
 
 onMounted(() => {
   highlightCode();
+  nextTick(() => adjustButtonSizes());
 });
+
+const adjustButtonSizes = () => {
+  nextTick(() => {
+    const buttons = document.querySelectorAll('.answer-button');
+    let maxWidth = 0;
+    let maxHeight = 0;
+
+    // Calculer la taille maximale des boutons
+    buttons.forEach(button => {
+      button.style.width = 'auto';
+      button.style.height = 'auto';
+      const rect = button.getBoundingClientRect();
+      if (rect.width > maxWidth) {
+        maxWidth = rect.width;
+      }
+      if (rect.height > maxHeight) {
+        maxHeight = rect.height;
+      }
+    });
+
+    // Appliquer la taille maximale à tous les boutons
+    buttons.forEach(button => {
+      button.style.width = `${maxWidth}px`;
+      button.style.height = `${maxHeight}px`;
+    });
+  });
+};
 </script>
 
 <style scoped>
@@ -96,6 +125,7 @@ onMounted(() => {
   width: 10%;
   display: flex;
   justify-content: center;
+  align-items: center;
 }
 
 .middle-part {
@@ -107,11 +137,9 @@ onMounted(() => {
 }
 
 .display-code {
-  border: 1px solid #333;
   width: 100%;
   padding: 10px;
-  background-color: #2e3440;
-  color: #d8dee9;
+  background-color: #ddd;
   overflow: auto;
   border-radius: 5px;
   font-family: 'Fira Code', monospace;
@@ -121,6 +149,13 @@ onMounted(() => {
 .answers-container {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
+  grid-gap: 10px;
+}
+
+.answers {
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .right-part {
@@ -128,11 +163,16 @@ onMounted(() => {
   width: 10%;
   display: flex;
   justify-content: center;
+  align-items: center;
 }
 
 .question-container {
   display: flex;
   flex-direction: column;
   align-items: center;
+}
+
+.next-button {
+  margin-top: 20px;
 }
 </style>
