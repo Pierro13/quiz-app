@@ -313,10 +313,10 @@ def update_question_route(question_id):
     try:
         if not get_question_by_id(question_id):
             return 'Question not found', 404
-        if question.code:
-            output_path = f"static/code_images/question_{question.position}.webp"
-            generate_code_image(question.code, output_path)
-            question.image = output_path
+        # if question.code:
+        #     output_path = f"static/code_images/question_{question.position}.webp"
+        #     generate_code_image(question.code, output_path)
+        #     question.image = output_path
         
 
         update_question(question_id, question)

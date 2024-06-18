@@ -1,6 +1,5 @@
 <template>
   <div class="admin-container">
-    <h1>Admin Panel</h1>
     <div v-if="!isTokenValid" class="login-container">
       <h2>Login</h2>
       <div class="input-container">

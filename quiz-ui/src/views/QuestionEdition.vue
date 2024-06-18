@@ -1,39 +1,84 @@
 <template>
-  <div>
-    <h2>Edit Question</h2>
-    <div v-if="localQuestion">
-      <input v-model="localQuestion.title" placeholder="Title" />
-      <textarea v-model="localQuestion.text" placeholder="Text"></textarea>
-      <input v-model="localQuestion.image" placeholder="Image URL" />
-      <input v-model="localQuestion.position" type="number" placeholder="Position" />
-      <div v-for="(answer, index) in localQuestion.possibleAnswers" :key="index">
-        <input v-model="answer.text" placeholder="Answer text" />
-        <input v-model="answer.is_correct" type="checkbox" />
+  <div class="container">
+    <h2 class="title">Modifier la question</h2>
+    <div v-if="localQuestion" class="form-container">
+      <div class="form-group">
+        <label for="title">Titre:</label>
+        <input v-model="localQuestion.title" class="input" id="title" placeholder="Title" />
       </div>
-      <input v-model="localQuestion.code" placeholder="Code" />
-      <button @click="saveQuestion">Save</button>
-      <button @click="$emit('save')">Cancel</button>
+      <div class="form-group">
+        <label for="text">Question:</label>
+        <textarea v-model="localQuestion.text" class="textarea" id="text" placeholder="Text"></textarea>
+      </div>
+      <div class="form-group">
+        <label for="image">URL de l'image:</label>
+        <input v-model="localQuestion.image" class="input" id="image" placeholder="Image URL" />
+      </div>
+      <div class="form-group">
+        <label for="position">Position:</label>
+        <input v-model="localQuestion.position" class="input" id="position" type="number" placeholder="Position" />
+      </div>
+      <div class="form-group">
+        <label>Réponses:</label>
+        <div v-for="(answer, index) in localQuestion.possibleAnswers" :key="index" class="answer-container">
+          <input v-model="answer.text" class="input" placeholder="Answer text" />
+          <input v-model="answer.is_correct" type="checkbox" /> Correct
+        </div>
+      </div>
+      <div class="form-group code-editor">
+        <label for="code">Code:</label>
+        <div class="code-editor">
+          <textarea v-model="localQuestion.code" id="code" class="code-input" @input="highlightCode" placeholder="Code"></textarea>
+          <pre v-html="highlightedCode" class="hljs code-output"></pre>
+        </div>
+      </div>
+      <div class="button-container">
+        <button @click="saveQuestion" class="button save-button">Enregistrer</button>
+        <button @click="$emit('save')" class="button cancel-button">Annuler</button>
+      </div>
     </div>
     <div v-else>
-      <p>Loading question...</p>
+      <p>Chargement de la question...</p>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, watch, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
 import axios from 'axios';
+import hljs from 'highlight.js';
+import 'highlight.js/styles/github.css';
 
 const route = useRoute();
 const localQuestion = ref(null);
+const highlightedCode = ref('');
 
 const fetchQuestion = async (id) => {
   try {
     const response = await axios.get(`http://127.0.0.1:5000/questions/${id}`);
     localQuestion.value = response.data;
+    highlightCode();
   } catch (error) {
     console.error('Failed to fetch question:', error);
+  }
+};
+
+const highlightCode = () => {
+  if (localQuestion.value?.code) {
+    highlightedCode.value = hljs.highlightAuto(localQuestion.value.code).value;
+  } else {
+    highlightedCode.value = '';
+  }
+};
+
+const saveQuestion = async () => {
+  try {
+    await axios.put(`http://127.0.0.1:5000/questions/${localQuestion.value.id}`, localQuestion.value);
+    alert('Question enregistrée avec succès');
+    // Redirigez vers la liste des questions ou émettez un événement
+  } catch (error) {
+    console.error('Failed to save question:', error);
   }
 };
 
@@ -42,13 +87,120 @@ onMounted(() => {
   fetchQuestion(questionId);
 });
 
-const saveQuestion = async () => {
-  try {
-    await axios.put(`http://127.0.0.1:5000/questions/${localQuestion.value.id}`, localQuestion.value);
-    alert('Question saved successfully');
-    // Redirigez vers la liste des questions ou émettez un événement
-  } catch (error) {
-    console.error('Failed to save question:', error);
+watch(
+  () => localQuestion.value?.code,
+  () => {
+    highlightCode();
   }
-};
+);
 </script>
+
+
+<style scoped>
+.container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background-color: #f9f9f9;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.title {
+  text-align: center;
+  color: #333;
+  margin-bottom: 20px;
+}
+
+.form-container {
+  display: flex;
+  flex-direction: column;
+}
+
+.form-group {
+  margin-bottom: 15px;
+}
+
+.input, .textarea {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 16px;
+}
+
+.textarea {
+  height: 100px;
+  resize: vertical;
+}
+
+.answer-container {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.answer-container .input {
+  flex: 1;
+  margin-right: 10px;
+}
+
+.code-editor {
+  display: flex;
+  flex-direction: column;
+}
+
+.code-input {
+  width: 100%;
+  height: 150px;
+  font-family: monospace;
+  font-size: 14px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  padding: 10px;
+  resize: none;
+}
+
+.code-output {
+  width: 100%;
+  height: 150px;
+  background-color: #f5f5f5;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  padding: 10px;
+  overflow: auto;
+  white-space: pre-wrap; /* Permet l'habillage du texte */
+  word-wrap: break-word; /* Permet l'habillage du texte */
+}
+
+.button-container {
+  display: flex;
+  justify-content: space-between;
+}
+
+.button {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 4px;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.save-button {
+  background-color: #4CAF50;
+  color: white;
+}
+
+.cancel-button {
+  background-color: #f44336;
+  color: white;
+}
+
+.button:hover {
+  opacity: 0.9;
+}
+</style>
+
+
+

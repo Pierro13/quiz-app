@@ -65,7 +65,6 @@ function stopTimer() {
 }
 
 watch(() => props.currentQuestion, () => {
-  // Réinitialisez le timer chaque fois que la question change
   startTimer();
 }, { immediate: true });
 
@@ -123,7 +122,6 @@ const adjustButtonSizes = () => {
     let maxWidth = 0;
     let maxHeight = 0;
 
-    // Calculer la taille maximale des boutons
     buttons.forEach(button => {
       button.style.width = 'auto';
       button.style.height = 'auto';
@@ -136,7 +134,6 @@ const adjustButtonSizes = () => {
       }
     });
 
-    // Appliquer la taille maximale à tous les boutons
     buttons.forEach(button => {
       button.style.width = `${maxWidth}px`;
       button.style.height = `${maxHeight}px`;
