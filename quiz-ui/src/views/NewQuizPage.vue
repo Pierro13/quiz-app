@@ -1,9 +1,12 @@
 <template>
-  <h1>New Quiz Page Works !</h1>
-  <div class="container">
-    <h3>Saisissez votre nom</h3>
-    <input type="text" placeholder="Username" v-model="username" />
-    <button @click="launchNewQuiz">GO!</button>
+  <div class="global-container">
+    <div class="container">
+    <div class="input-holder">
+      <h3>Saisissez votre nom</h3>
+      <input type="text" placeholder="Username" v-model="username" />
+      <button @click="launchNewQuiz">GO!</button>
+    </div>
+  </div>
   </div>
 </template>
 
@@ -26,3 +29,21 @@
     }    
   }
 </script>
+
+<style scoped>
+  .global-container{
+    display: flex;
+    justify-content: center;
+  }
+
+  .container{
+    margin-top: 10vh;
+    border-radius: 10px;
+    background-color: #ACECA1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 30vw;
+    padding-bottom: 3vh;
+  }
+</style>

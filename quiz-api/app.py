@@ -50,6 +50,7 @@ def GetQuizInfo():
     
 def calculate_score(participation):
     answers = participation['answers']
+    answers = [0 if answer is None else answer for answer in answers]
     print(f"Calculating score for answers: {answers}")
     score = 0
     questions = get_all_questions()

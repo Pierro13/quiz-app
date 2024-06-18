@@ -1,32 +1,34 @@
 <template>
   <div class="container">
-    <div class="left-part">
-      <h3>Score : {{ score }}</h3>
-    </div>
-    <div class="middle-part">
-      <div class="question-container">
-        <h2>{{ currentQuestion.title }}</h2>
-        <p>{{ currentQuestion.text }}</p>
-        <pre v-if="currentQuestion.code" v-html="highlightedCode" class="hljs display-code"></pre>
-        <img v-if="currentQuestion.image" :src="`http://127.0.0.1:5000/${currentQuestion.image}`" alt="Question image" />
+    <div class="parts-container">
+      <div class="left-part">
+        <h3>Score : {{ score }}</h3>
       </div>
-      <div class="answers-container">
-        <div class="answers" v-for="(answer, index) in currentQuestion.possibleAnswers" :key="index">
-          <AnswerButton ref="answerButtons" :text="answer.text" :color="colors[index % colors.length]" :disabled="isAnswerSubmitted" @click="selectAnswer(index)" />
+      <div class="middle-part">
+        <div class="question-container">
+          <h2>{{ currentQuestion.title }}</h2>
+          <p>{{ currentQuestion.text }}</p>
+          <pre v-if="currentQuestion.code" v-html="highlightedCode" class="hljs display-code"></pre>
+          <img v-if="currentQuestion.image" :src="`http://127.0.0.1:5000/${currentQuestion.image}`" alt="Question" />
+        </div>
+        <div class="answers-container">
+          <div class="answers" v-for="(answer, index) in currentQuestion.possibleAnswers" :key="index">
+            <AnswerButton ref="answerButtons" :text="answer.text" :color="colors[index % colors.length]" :disabled="isAnswerSubmitted" @click="selectAnswer(index)" />
+          </div>
         </div>
       </div>
-    </div>
-    <div class="right-part">
-      <h3>Temps : 0:10</h3>
+      <div class="right-part">
+        <h3>Temps : {{ timeLeft }}</h3>
+      </div>
     </div>
     <div class="next-button" v-if="!isLastQuestion">
-      <button @click="nextQuestion">Next</button>
+      <button @click="nextQuestion">Passer</button>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, watch, onMounted, nextTick } from 'vue';
+import { ref, watch, onMounted, nextTick, onUnmounted } from 'vue';
 import hljs from 'highlight.js';
 import 'highlight.js/styles/github.css';
 
@@ -41,6 +43,31 @@ const emit = defineEmits(['click-on-answer', 'next-question']);
 
 const highlightedCode = ref('');
 const isAnswerSubmitted = ref(false);
+const timeLeft = ref(10);
+const timerInterval = ref(null);
+
+function startTimer(){
+  timeLeft.value = 5;
+  if(timerInterval.value) clearInterval(timerInterval.value);
+  timerInterval.value = setInterval(() => {
+    if(timeLeft.value > 0){
+      timeLeft.value -= 1;
+    } else{
+      stopTimer();
+      nextQuestion();
+    }
+  }, 1000);
+}
+
+function stopTimer() {
+  clearInterval(timerInterval.value);
+  timerInterval.value = null;
+}
+
+watch(() => props.currentQuestion, () => {
+  // Réinitialisez le timer chaque fois que la question change
+  startTimer();
+}, { immediate: true });
 
 const selectAnswer = (index) => {
   if (index < 0 || index >= props.currentQuestion.possibleAnswers.length) {
@@ -83,6 +110,11 @@ watch(() => props.currentQuestion, (newQuestion, oldQuestion) => {
 onMounted(() => {
   highlightCode();
   nextTick(() => adjustButtonSizes());
+  startTimer();
+});
+
+onUnmounted(() => {
+  stopTimer();
 });
 
 const adjustButtonSizes = () => {
@@ -115,6 +147,12 @@ const adjustButtonSizes = () => {
 
 <style scoped>
 .container {
+  margin-top: 5vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.parts-container {
   display: flex;
   justify-content: center;
   border: 1px solid green;
@@ -134,6 +172,7 @@ const adjustButtonSizes = () => {
   display: flex;
   flex-direction: column;
   align-items: center;
+  padding-bottom: 1vh;
 }
 
 .display-code {
@@ -144,6 +183,8 @@ const adjustButtonSizes = () => {
   border-radius: 5px;
   font-family: 'Fira Code', monospace;
   word-wrap: break-word;
+  white-space: pre-wrap; /* Ajoute des retours à la ligne si le code est trop long */
+  max-width: 80%;
 }
 
 .answers-container {
@@ -173,6 +214,16 @@ const adjustButtonSizes = () => {
 }
 
 .next-button {
-  margin-top: 20px;
+  margin-top: 1vh;
+  display: flex;
+  justify-content: center;
+}
+
+button {
+  width: 5vw;
+}
+
+button:hover {
+  cursor: pointer;
 }
 </style>

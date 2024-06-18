@@ -104,7 +104,36 @@ onMounted(async () => {
       @next-question="loadNextQuestion"
     />
   </div>
-  <div v-else class="container">
-    <p>Quiz terminé ! Votre score est de : {{ score }}</p>
+  <div v-else class="container-end">
+    <h1>Quiz terminé !</h1>
+    <h1>Votre score est de : {{ score }}</h1>
+    <a href="/scores" class="scores-link-end">
+        Afficher les scores
+    </a>
   </div>
 </template>
+
+<style scoped>
+    .container-end{
+        margin-top: 10vh;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .scores-link-end{
+        border: 1px solid black;
+        border-radius: 5px;
+        background-color: #ACECA1;
+        margin-bottom: 1vh;
+        padding: 1vh 1vh;
+        text-decoration: none;
+        color: inherit;
+    }
+
+    .scores-link-end:hover{
+        background-color: #01a201;
+    }
+
+</style>
