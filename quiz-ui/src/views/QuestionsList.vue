@@ -6,7 +6,7 @@
         <div v-for="question in sortedQuestions" :key="question.id" class="card">
           <div class="container-img-card">
             <div class="img-card">
-              <img v-if="question.image" :src="`http://127.0.0.1:5000/${question.image}`" width="200px" height="50px" alt="Question image">
+              <img v-if="question.image" :src="`http://127.0.0.1:5000/${question.image}`" width="200px" height="50px" alt="Question">
             </div>
           </div>
           <h3>{{ question.title }}</h3>
@@ -16,8 +16,8 @@
             <p v-for="answer in question.possibleAnswers" :key="answer.id">-> {{ answer.text }} ({{ answer.isCorrect ? 'Correct' : 'Incorrect' }})</p>
           </div>
           <div class="buttons">
-            <button @click="editQuestion(question.id)">Modifier</button>
-            <button @click="deleteQuestion(question.id)">Supprimer</button>
+            <button class="button edit-button" @click="editQuestion(question.id)">Modifier</button>
+            <button class="button delete-button" @click="deleteQuestion(question.id)">Supprimer</button>
           </div>
         </div>
       </div>
@@ -119,7 +119,28 @@ h2 {
 .buttons{
   display: flex;
   justify-content: space-around;
+}
 
+.button {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 4px;
+  font-size: 0.8em;
+  cursor: pointer;
+}
+
+.edit-button {
+  background-color: #4CAF50;
+  color: white;
+}
+
+.delete-button {
+  background-color: #f44336;
+  color: white;
+}
+
+.button:hover {
+  opacity: 0.9;
 }
 
 .bold {
@@ -127,3 +148,4 @@ h2 {
   padding-right: 0.5vw;
 }
 </style>
+

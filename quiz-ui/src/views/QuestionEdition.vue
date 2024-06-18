@@ -34,7 +34,7 @@
       </div>
       <div class="button-container">
         <button @click="saveQuestion" class="button save-button">Enregistrer</button>
-        <button @click="$emit('save')" class="button cancel-button">Annuler</button>
+        <button @click="cancelQuestion" class="button cancel-button">Annuler</button>
       </div>
     </div>
     <div v-else>
@@ -45,12 +45,13 @@
 
 <script setup>
 import { ref, watch, onMounted } from 'vue';
-import { useRoute } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 import axios from 'axios';
 import hljs from 'highlight.js';
 import 'highlight.js/styles/github.css';
 
 const route = useRoute();
+const router = useRouter();
 const localQuestion = ref(null);
 const highlightedCode = ref('');
 
@@ -76,11 +77,19 @@ const saveQuestion = async () => {
   try {
     await axios.put(`http://127.0.0.1:5000/questions/${localQuestion.value.id}`, localQuestion.value);
     alert('Question enregistrée avec succès');
-    // Redirigez vers la liste des questions ou émettez un événement
+    router.push('/admin');
   } catch (error) {
     console.error('Failed to save question:', error);
   }
 };
+
+const cancelQuestion = async () => {
+  try {
+    router.push('/admin');
+  } catch (error) {
+    console.error('Failed to cancel question edition', error);
+  }
+}
 
 onMounted(() => {
   const questionId = route.params.id;

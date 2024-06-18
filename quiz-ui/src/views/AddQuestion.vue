@@ -1,42 +1,45 @@
 <template>
-  <div>
-    <h2>Add New Question</h2>
-    <form @submit.prevent="submitForm" class="form-question">
-      <div>
-        <label for="title">Title:</label>
-        <input type="text" id="title" v-model="newQuestion.title" required>
+  <div class="container">
+    <h2 class="title">Ajouter une nouvelle question</h2>
+    <form @submit.prevent="submitForm" class="form-container">
+      <div class="form-group">
+        <label for="title">Titre:</label>
+        <input type="text" id="title" v-model="newQuestion.title" class="input" required>
       </div>
-      <div>
-        <label for="text">Text:</label>
-        <textarea id="text" v-model="newQuestion.text" required></textarea>
+      <div class="form-group">
+        <label for="text">Question:</label>
+        <textarea id="text" v-model="newQuestion.text" class="textarea" required></textarea>
       </div>
-      <div>
+      <div class="form-group">
         <label for="code">Code:</label>
         <div class="code-editor">
           <textarea id="code" v-model="newQuestion.code" @input="highlightCode" class="code-input"></textarea>
           <pre v-html="highlightedCode" class="hljs code-output"></pre>
         </div>
       </div>
-      <div>
-        <label for="image">Image URL:</label>
-        <input type="text" id="image" v-model="newQuestion.image">
+      <div class="form-group">
+        <label for="image">URL de l'image(Optionnel):</label>
+        <input type="text" id="image" v-model="newQuestion.image" class="input">
       </div>
-      <div>
+      <div class="form-group">
         <label for="position">Position:</label>
-        <input type="number" id="position" v-model="newQuestion.position" required @input="validatePosition">
+        <input type="number" id="position" v-model="newQuestion.position" class="input" required @input="validatePosition">
         <p v-if="positionError" class="error">{{ positionError }}</p>
       </div>
-      <div>
-        <h3>Answers:</h3>
-        <div v-for="(answer, index) in newQuestion.possibleAnswers" :key="index">
-          <input type="text" v-model="answer.text" placeholder="Answer text" required>
+      <div class="form-group">
+        <label>Réponses:</label>
+        <div v-for="(answer, index) in newQuestion.possibleAnswers" :key="index" class="answer-container">
+          <input type="text" v-model="answer.text" class="input" placeholder="Texte de réponse" required>
           <input type="checkbox" v-model="answer.isCorrect"> Correct
         </div>
       </div>
-      <button type="submit" :disabled="!!positionError">Add Question</button>
+      <div class="button-container">
+        <button type="submit" class="button save-button" :disabled="!!positionError">Ajouter la question</button>
+      </div>
     </form>
   </div>
 </template>
+
 
 <script setup>
 import { ref, watch, onMounted } from 'vue';
@@ -137,21 +140,64 @@ onMounted(() => {
 });
 </script>
 
+
 <style scoped>
-h2 {
-  text-align: center;
-}
-.form-question {
-  border: 1px solid black;
-  border-radius: 25px;
+.container {
+  max-width: 800px;
+  margin: 0 auto;
   padding: 20px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background-color: #f9f9f9;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
+
+.title {
+  text-align: center;
+  color: #333;
+  margin-bottom: 20px;
+}
+
+.form-container {
+  display: flex;
+  flex-direction: column;
+}
+
+.form-group {
+  margin-bottom: 15px;
+}
+
+.input, .textarea {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 16px;
+}
+
+.textarea {
+  height: 100px;
+  resize: vertical;
+}
+
+.answer-container {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.answer-container .input {
+  flex: 1;
+  margin-right: 10px;
+}
+
 .code-editor {
   display: flex;
-  position: relative;
+  flex-direction: column;
 }
+
 .code-input {
-  width: 50%;
+  width: 100%;
   height: 150px;
   font-family: monospace;
   font-size: 14px;
@@ -160,8 +206,9 @@ h2 {
   padding: 10px;
   resize: none;
 }
+
 .code-output {
-  width: 50%;
+  width: 100%;
   height: 150px;
   background-color: #f5f5f5;
   border: 1px solid #ddd;
@@ -171,7 +218,32 @@ h2 {
   white-space: pre-wrap; /* Permet l'habillage du texte */
   word-wrap: break-word; /* Permet l'habillage du texte */
 }
-.error {
-  color: red;
+
+.button-container {
+  display: flex;
+  justify-content: space-between;
+}
+
+.button {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 4px;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.save-button {
+  background-color: #4CAF50;
+  color: white;
+}
+
+.cancel-button {
+  background-color: #f44336;
+  color: white;
+}
+
+.button:hover {
+  opacity: 0.9;
 }
 </style>
+
