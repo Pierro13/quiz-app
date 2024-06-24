@@ -47,7 +47,7 @@ const timeLeft = ref(10);
 const timerInterval = ref(null);
 
 function startTimer(){
-  timeLeft.value = 500;
+  timeLeft.value = 60;
   if(timerInterval.value) clearInterval(timerInterval.value);
   timerInterval.value = setInterval(() => {
     if(timeLeft.value > 0){
